@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Clientes e Projetos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>📋 Gestão de Card de Cliente</h1>
+    </header>
+
+    <main>
+        <section id="search-container" class="card">
+            <h2>🔎 Buscar / Criar Cliente</h2>
+            <div class="field-group">
+                <label for="search-input">Código ou Nome Cliente:</label>
+                <input type="text" id="search-input" placeholder="Digite Código ou Nome do Cliente">
+                
+                <button id="search-btn-direct" style="background-color: #007bff;">Buscar Cliente</button>
+                
+                <button id="search-btn-list" style="background-color: #0099cc;">Buscar (Lista)</button> 
+                
+                <button id="new-client-btn" style="background-color: #007bff;">Novo Cliente</button>
+                <button id="reset-client-btn" style="background-color: #bc0000;">Limpar</button>
+            </div>
+            <p id="current-client-info" style="font-weight: bold; margin-top: 10px; color: #218838;">
+                Nenhum cliente carregado.
+            </p>
+            <div class="action-buttons" style="justify-content: flex-start; margin-top: 20px;">
+                <button type="button" id="show-reminders-btn" style="background-color: #ffc107; color: #333;">
+                    🔔 Mostrar Lembretes Diários
+                </button>
+            </div>
+        </section>
+
+        <form id="client-form">
+            <input type="hidden" id="current-client-id">
+
+            <section class="card">
+                <h2>1. Dados do Cliente</h2>
+                <div class="field-group">
+                    <label for="data-inicio">Data de Início:</label>
+                    <input type="date" id="data-inicio" required>
+                </div>
+                <div class="field-group">
+                    <label for="codigo">Código:</label>
+                    <input type="text" id="codigo" maxlength="10" required>
+                    <label for="nome-cliente">Nome Cliente:</label>
+                    <input type="text" id="nome-cliente" maxlength="50" required>
+                </div>
+                <div class="field-group">
+                    <label for="nome-contato">Nome Contato:</label>
+                    <input type="text" id="nome-contato" maxlength="50">
+                    <label for="email">E-mail:</label>
+                    <input type="email" id="email" maxlength="100">
+                </div>
+                <div class="field-group">
+                    <label for="telefone-01">Telefone:</label>
+                    <input type="text" id="telefone-01" maxlength="15">                   
+                </div>                 
+            </section>  
+            
+            <section class="card">
+                <h2>2. Resumo após Reunião</h2>
+                <div class="field-group">
+                    <label for="plano-acao">Plano de Ação (máx. 2000):</label>
+                    <textarea id="plano-acao" maxlength="2000" rows="6"></textarea>
+                </div>
+            </section>
+
+            <div class="action-buttons">
+                <button type="submit">Salvar Dados</button>
+                <button type="button" id="delete-btn" class="delete-button">Excluir Cliente</button>
+            </div>
+        </form>
+
+        <section id="tarefas-container" class="card">
+            <h2>3. Ações/Tarefas (Checklist)</h2>
+            <div id="tarefas-list">
+                </div>
+            
+            <div class="field-group add-task">
+                <label for="nova-tarefa">Nova Tarefa:</label>
+                <input type="text" id="nova-tarefa" placeholder="Descrição da Tarefa">
+                <label for="hora-tarefa">Hora:</label>
+                <input type="time" id="hora-tarefa" placeholder="Hora da Tarefa" style="max-width: 150px;">
+            </div>
+            
+            <div class="field-group add-task-controls"> 
+                <label for="tarefa-due-date">Prazo:</label>
+                <input type="date" id="tarefa-due-date" style="max-width: 200px;">
+                <button id="add-tarefa-btn" style="flex-grow: 0;">Adicionar</button>
+            </div>
+        </section>
+
+        <section id="prazo-container" class="card">
+            <h2>4. Prazo de Conclusão</h2>
+            <p id="countdown-message">Tempo para conclusão deste card: <span>...</span></p>
+        </section>
+        
+    </main>
+    
+    <div id="reminder-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="reminder-close-btn">&times;</span>
+            <h2>Lembretes de Ações Pendentes para Hoje</h2>
+            <div id="reminders-list-output"></div>
+        </div>
+    </div>
+
+    <div id="client-list-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="list-close-btn">&times;</span>
+            <h2>Escolha um Cliente</h2>
+            <div id="client-list-output">
+                </div>
+            <div style="margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end;">
+                <button id="clear-list-selection-btn" style="background-color: #f0ad4e;">Limpar Seleção</button>
+                <button id="back-to-main-btn" style="background-color: #337ab7;">Voltar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="task-summary-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="summary-close-btn">&times;</span>
+            <h2 id="summary-client-name">Tarefas do Cliente: [Nome]</h2>
+            <div id="summary-tasks-output">
+                </div>
+            <div style="margin-top: 20px; text-align: right; display: flex; gap: 10px; justify-content: flex-end;">
+                <button id="load-for-edit-btn" style="background-color: #28a745;">Carregar para Edição</button>
+                <button id="exit-task-summary-btn" class="delete-button">Sair</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
