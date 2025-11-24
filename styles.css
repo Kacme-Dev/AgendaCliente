@@ -1,160 +1,67 @@
+/* Importa o Bootstrap via CDN - Note que esta linha deve ser adicionada no index.html */
+/* Apenas classes customizadas ou overrides devem ficar aqui */
+
+/* Define o estilo para o corpo do documento (toda a página) */
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-    color: #333;
-    margin: 0;
-    padding: 0;
+    font-family: 'Arial', sans-serif; /* Define a fonte principal */
+    background-color: #f4f4f9; /* Define uma cor de fundo clara (mantido) */
+    color: #333; /* Define a cor padrão do texto (mantido) */
 }
 
-header {
-    background-color: #007bff;
-    color: white;
-    padding: 20px;
-    text-align: center;
+/* Estilo para o cabeçalho da página */
+.custom-header {
+    background-color: #007bff; /* Cor de fundo azul primária (mantido) */
+    color: white; /* Cor do texto branca (mantido) */
+    padding: 1.25rem 0; /* Espaçamento interno (usando rem para padronização Bootstrap) */
 }
 
-main {
-    max-width: 900px;
-    margin: 20px auto;
-    padding: 20px;
+/* Estilo para a área principal de conteúdo */
+.main-content {
+    max-width: 900px; /* Largura máxima da área de conteúdo (mantido) */
 }
 
+/* Estilo genérico para os containers de conteúdo (cards) - Usa a classe 'card' do Bootstrap */
 .card {
-    background: white;
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px; /* Cantos arredondados (mantido) */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave (melhorado para Bootstrap) */
+    margin-bottom: 20px; /* Espaçamento abaixo do card */
 }
 
-h2 {
-    color: #007bff;
-    border-bottom: 2px solid #eee;
-    padding-bottom: 10px;
-    margin-top: 0;
+/* Estilo para os títulos de seção */
+.section-title {
+    color: #007bff; /* Cor do título azul primária (mantido) */
+    border-bottom: 2px solid #eee; /* Linha de separação inferior (mantido) */
+    padding-bottom: 10px; /* Espaçamento abaixo da linha (mantido) */
+    margin-top: 0; /* Remove margem superior */
 }
 
-.field-group {
-    margin-bottom: 15px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items: center;
-}
-
-.field-group label {
-    font-weight: bold;
-    min-width: 150px; 
-}
-
-.field-group input[type="text"],
-.field-group input[type="email"],
-.field-group input[type="url"],
-.field-group input[type="date"],
-.field-group input[type="time"],
-.field-group textarea {
-    flex-grow: 1;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-
+/* Estilo específico para caixas de texto longas */
 textarea {
-    resize: vertical;
-}
-
-.checkbox-group label {
-    margin-right: 20px;
-    font-weight: normal;
-}
-
-.action-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
-    justify-content: flex-end; 
-}
-
-button {
-    background-color: #28a745; /* Salvar */
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    margin-top: 0; 
-}
-
-button:hover {
-    background-color: #218838;
-}
-
-.delete-button {
-    background-color: #dc3545; /* Vermelho para exclusão */
-}
-
-.delete-button:hover {
-    background-color: #c82333;
+    resize: vertical; /* Permite redimensionamento apenas vertical (mantido) */
 }
 
 /* Estilo específico para a seção de busca/criação */
-#search-container {
-    background-color: #e9f7ff;
-    border-left: 5px solid #007bff;
+#search-container.card {
+    background-color: #e9f7ff; /* Fundo azul claro (mantido) */
+    border-left: 5px solid #007bff; /* Borda lateral azul (mantido) */
 }
 
-#search-container h2 {
-    color: #007bff;
-    border-bottom: 2px solid #b3e0ff;
+/* Estilo para o título dentro do container de busca */
+#search-container .section-title {
+    border-bottom: 2px solid #b3e0ff; /* Linha de separação mais clara (mantido) */
 }
 
-#search-btn-direct, #search-btn-list, #new-client-btn {
-    padding: 8px 12px;
-    margin-top: 0;
+/* --- Estilo de Layout da Seção de Tarefas (Customizado para Flex) --- */
+
+/* Estilo para a segunda linha de controles de adição de tarefa */
+.add-task-controls .form-group {
+    margin-bottom: 0; /* Remove margem inferior padrão do form-group Bootstrap */
 }
 
-/* --- Estilo de Layout da Seção de Tarefas --- */
-
-/* Estilo para a segunda linha de controles de tarefa */
-.add-task-controls {
-    justify-content: flex-start; 
-    gap: 20px; 
-}
-
-.add-task-controls label {
-    min-width: 80px; 
-}
-
-.add-task-controls button {
-    flex-grow: 0;
-    margin-left: auto; 
-}
-
-/* --- Estilo de Status de Tarefas --- */
-
-/* Estilo para tarefas CONCLUÍDAS (Archived/Arquivada) */
-.completed-task {
-    text-decoration: line-through;
-    opacity: 0.7; 
-    background-color: #e2f0d9 !important; /* Verde claro */
-    border-left: 5px solid #28a745 !important;
-}
-
-/* Estilo para tarefas EM ATRASO (Overdue) */
-.overdue-task {
-    background-color: #f8d7da !important; /* Vermelho claro */
-    border-left: 5px solid #dc3545 !important;
-    font-weight: bold;
-    color: #333;
-}
+/* --- Estilo de Status de Tarefas (Customizado) --- */
 
 /* Refina o estilo da lista de tarefas para melhor visualização dos bordes */
-#tarefas-list div {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+#tarefas-list div, .task-summary-item {
     padding: 10px; 
     margin-bottom: 5px; 
     border: 1px solid #eee; 
@@ -162,79 +69,76 @@ button:hover {
     background-color: #fff; 
 }
 
-/* Mantém o estilo do botão de exclusão X */
+/* Estilo para tarefas CONCLUÍDAS (Archived/Arquivada) */
+.completed-task {
+    text-decoration: line-through; /* Risca o texto */
+    opacity: 0.7; /* Torna ligeiramente transparente */
+    background-color: #e2f0d9 !important; /* Fundo verde claro */
+    border-left: 5px solid #28a745 !important; /* Borda lateral verde */
+}
+
+/* Estilo para tarefas EM ATRASO (Overdue) */
+.overdue-task {
+    /* Cor de fundo vermelha clara (destaque) */
+    background-color: #f8d7da !important; 
+    /* Borda lateral vermelha (destaque) */
+    border-left: 5px solid #dc3545 !important; 
+    font-weight: bold; /* Deixa o texto em negrito */
+    color: #333;
+}
+
+/* Estilo para o label da tarefa, permitindo ocupar o espaço central */
+#tarefas-list .task-label {
+    flex-grow: 1; /* Permite que o label cresça */
+    margin: 0 10px; /* Adiciona margem lateral */
+}
+
+/* Botão de exclusão (X) customizado para a lista de tarefas */
 .delete-task-btn {
     background-color: #aaa;
     color: white;
     padding: 3px 8px;
-    border-radius: 50%;
+    border-radius: 50%; /* Torna o botão redondo */
     font-size: 12px;
+    flex-shrink: 0; /* Impede que o botão encolha */
+    border: none;
+    cursor: pointer;
 }
 .delete-task-btn:hover {
     background-color: #dc3545;
 }
 
-/* --- Estilos dos Modais (Popups) --- */
 
-.modal {
-    display: none; 
-    position: fixed; 
-    z-index: 1000; 
-    left: 0;
-    top: 0;
-    width: 100%; 
-    height: 100%; 
-    overflow: auto; 
-    background-color: rgba(0,0,0,0.4); 
-}
+/* --- Estilos de Itens da Lista de Clientes --- */
 
-.modal-content {
-    background-color: #fefefe;
-    margin: 10% auto; 
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%; 
-    max-width: 600px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.close-btn {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.close-btn:hover,
-.close-btn:focus {
-    color: #000;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-/* Estilo para itens na lista de lembretes */
-#reminders-list-output div {
-    padding: 10px;
-    margin-bottom: 10px;
-    background-color: #fff3cd; /* Cor de alerta */
-    border: 1px solid #ffeeba;
-    border-left: 5px solid #ffc107; /* Faixa lateral amarela */
-    border-radius: 4px;
-}
-
-/* Estilo para itens na lista de clientes */
+/* Estilo para itens na lista de clientes no modal */
 .client-list-item {
     padding: 10px;
     margin-bottom: 5px;
     border: 1px solid #ddd;
-    border-left: 5px solid #0099cc;
+    border-left: 5px solid #0099cc; /* Faixa lateral azul ciano (mantido) */
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.2s;
 }
 
+/* Efeito de hover para itens da lista de clientes */
 .client-list-item:hover {
-    background-color: #e9f7ff;
+    background-color: #e9f7ff; /* Fundo azul claro no hover */
     font-weight: bold;
+}
+
+/* Estilo para o output de lembretes/relatórios no modal */
+#reminders-list-output div {
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #fff3cd; /* Cor de alerta (amarelo claro) */
+    border: 1px solid #ffeeba;
+    border-left: 5px solid #ffc107; /* Faixa lateral amarela */
+    border-radius: 4px;
+}
+
+/* Estilo para o Modal de Edição Rápida de Tarefa */
+#task-edit-modal .modal-content {
+    max-width: 600px; /* Limita a largura para ser menor que o modal de resumo */
 }
