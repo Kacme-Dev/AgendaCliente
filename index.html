@@ -3,48 +3,90 @@
 <head>
     <meta charset="UTF-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>Gestão de Clientes e Projetos</title> 
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    
-    <link rel="stylesheet" href="styles.css"> 
+    <title>Gestão de Card de Cliente</title> 
+    <!-- Carregamento do Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!-- Ícones Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="./styles.css">
 </head>
+
 <body>
+    
+    <!-- Modal Fixo Lateral Esquerdo: Lista de Clientes -->
+    <div class="client-list-sidebar">
+        <h3 class="section-title">Clientes Cadastrados</h3>
+        <p class="small text-muted mb-3">Clique em um cliente para ver as tarefas.</p>
+        <div id="client-list-output" class="d-flex flex-column gap-2">
+            <!-- Lista de clientes será injetada aqui pelo JS -->
+            <p class="text-center text-secondary small">Carregando clientes...</p>
+        </div>
+    </div>
+
+    <!-- Cabeçalho (Fixo) -->
     <header class="custom-header text-white text-center">
         <h1>📋 Gestão de Card de Cliente</h1> 
     </header>
 
     <main class="container main-content my-4">
         
-        <section id="search-container" class="card p-4">
+        <section id="search-container" class="card p-4 shadow-sm">
             <h2 class="section-title">🔎 Buscar / Criar Cliente</h2>
             
             <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
-                <label for="search-input" class="form-label mb-0 fw-bold">Código ou Nome Cliente:</label>
+                <label for="search-input" class="form-label mb-0 fw-bold">Cód. ou Nome:</label>
                 <input type="text" id="search-input" class="form-control flex-grow-1" placeholder="Digite Código ou Nome do Cliente">
                 
-                <button id="search-btn-direct" class="btn btn-primary btn-sm">Buscar Cliente</button>
-                <button id="search-btn-list" class="btn btn-info btn-sm">Buscar (Lista)</button> 
-                <button id="new-client-btn" class="btn btn-primary btn-sm">Novo Cliente</button>
+                <button id="search-btn-direct" class="btn btn-cobmais-primary btn-sm">Buscar Cliente</button>
+                <button id="new-client-btn" class="btn btn-cobmais-success btn-sm">Novo Cliente</button>
                 <button id="reset-client-btn" class="btn btn-danger btn-sm">Limpar</button>
             </div>
             
-            <p id="current-client-info" class="fw-bold mt-2 text-success">
+            <p id="current-client-info" class="fw-bold mt-2 text-primary">
                 Nenhum cliente carregado.
             </p>
             
-            <div class="d-flex justify-content-start mt-3">
-                <button type="button" id="show-reminders-btn" class="btn btn-warning btn-sm text-dark">
-                    🔔 Mostrar Lembretes Diários
+            <!-- Botões de Filtro Global de Tarefas -->
+            <div class="d-flex flex-wrap justify-content-start gap-2 mt-4 pt-3 border-top">
+                <button type="button" id="show-report-btn" class="btn btn-info btn-sm text-dark fw-bold">
+                    📊 Relatório Diário
+                </button>
+                <button type="button" id="show-today-tasks-btn" class="btn btn-warning btn-sm text-dark">
+                    🔔 Tarefas Hoje
+                </button>
+                <!-- O destaque será adicionado via JS -->
+                <button type="button" id="show-overdue-tasks-btn" class="btn btn-danger btn-sm">
+                    ⚠️ Tarefas Atrasadas <span id="overdue-count" class="badge bg-light text-danger ms-1">0</span>
+                </button>
+                <button type="button" id="show-future-tasks-btn" class="btn btn-secondary btn-sm">
+                    📅 Tarefas Futuras
                 </button>
             </div>
         </section>
 
-        <form id="client-form">
-            <input type="hidden" id="current-client-id"> 
-            
-            <section class="card p-4">
-                <h2 class="section-title">1. Dados do Cliente</h2>
+        <!-- Seção 4. Prazo de Conclusão (mantida na main, visível após carregamento de cliente) -->
+        <section id="prazo-container" class="card p-4 mt-4 shadow-sm d-none">
+            <h2 class="section-title">4. Prazo de Conclusão</h2>
+            <p id="countdown-message" class="mb-0 text-muted">Tempo para conclusão deste card: <span class="fw-bold text-dark">...</span></p>
+        </section>
+        
+    </main>
+    
+    <!-- ----------------------------------------------------- -->
+    <!-- MODAIS DE APLICAÇÃO (Dados do Cliente, Resumo, Tarefas) -->
+    <!-- ----------------------------------------------------- -->
+
+    <!-- Modal 1: Dados do Cliente -->
+    <div class="modal fade" id="client-data-modal" tabindex="-1" aria-labelledby="clientDataModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header bg-light">
+            <h5 class="modal-title section-title w-100" id="clientDataModalLabel">1. Dados do Cliente</h5>
+            <button type="button" class="btn-close" onclick="closeModal('client-data-modal')"></button>
+          </div>
+          <div class="modal-body">
+             <form id="client-data-form">
+                <input type="hidden" id="current-client-id">
                 
                 <div class="row mb-3">
                     <label for="data-inicio" class="col-sm-3 col-form-label fw-bold">Data de Início:</label>
@@ -83,112 +125,122 @@
                         <input type="text" id="telefone-01" class="form-control" maxlength="15">                   
                     </div>                 
                 </div>
-            </section>  
-            
-            <section class="card p-4">
-                <h2 class="section-title">2. Resumo após Reunião</h2>
-                <div class="mb-3">
-                    <label for="plano-acao" class="form-label fw-bold">Plano de Ação (máx. 2000):</label>
-                    <textarea id="plano-acao" class="form-control" maxlength="2000" rows="6"></textarea>
-                </div>
-            </section>
-
-            <div class="d-flex justify-content-end gap-2 mb-4">
-                <button type="submit" class="btn btn-success">Salvar Dados</button>
-                <button type="button" id="delete-btn" class="btn btn-danger">Excluir Cliente</button>
+            </form>
+          </div>
+          <div class="modal-footer d-flex justify-content-between">
+            <div>
+                <button type="button" id="modal1-delete-btn" class="btn btn-danger me-2"><i class="bi bi-trash"></i> Excluir Cliente</button>
             </div>
-        </form>
-
-        <section id="tarefas-container" class="card p-4">
-            <h2 class="section-title">3. Ações/Tarefas (Checklist)</h2>
-            
-            <div class="text-end mb-3">
-                <button id="relatorio-tarefas-btn" class="btn btn-warning btn-sm">📊 Relatório Diário</button>
+            <div>
+                <button type="button" id="modal1-back-btn" class="btn btn-secondary me-2"><i class="bi bi-arrow-left"></i> Voltar</button>
+                <button type="button" id="modal1-summary-btn" class="btn btn-info me-2"><i class="bi bi-file-text"></i> Resumo/Reunião</button>
+                <button type="button" id="modal1-task-btn" class="btn btn-warning me-2"><i class="bi bi-check2-square"></i> Cadastrar Tarefas</button>
+                <button type="button" id="modal1-save-btn" class="btn btn-cobmais-success"><i class="bi bi-save"></i> Salvar Dados</button>
             </div>
-            
-            <div id="tarefas-list" class="mb-4">
-                </div>
-            
-            <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
-                <label for="nova-tarefa" class="form-label mb-0 fw-bold" style="min-width: 80px;">Nova Tarefa:</label>
-                <input type="text" id="nova-tarefa" class="form-control flex-grow-1" placeholder="Descrição da Tarefa">
-                
-                <label for="hora-tarefa" class="form-label mb-0 fw-bold">Hora:</label>
-                <input type="time" id="hora-tarefa" class="form-control" style="max-width: 150px;">
-            </div>
-            
-            <div class="d-flex flex-wrap gap-2 align-items-center add-task-controls"> 
-                <label for="tarefa-due-date" class="form-label mb-0 fw-bold" style="min-width: 80px;">Prazo:</label>
-                <input type="date" id="tarefa-due-date" class="form-control" style="max-width: 200px;">
-                <button id="add-tarefa-btn" class="btn btn-success" style="flex-grow: 0;">Adicionar</button>
-            </div>
-        </section>
-
-        <section id="prazo-container" class="card p-4">
-            <h2 class="section-title">4. Prazo de Conclusão</h2>
-            <p id="countdown-message" class="mb-0">Tempo para conclusão deste card: <span class="fw-bold">...</span></p>
-        </section>
-        
-    </main>
+          </div>
+        </div>
+      </div>
+    </div>
     
-    <div class="modal fade" id="reminder-modal" tabindex="-1" aria-labelledby="reminderModalLabel" aria-hidden="true">
+    <!-- Modal 2: Resumo após Reunião -->
+    <div class="modal fade" id="summary-modal" tabindex="-1" aria-labelledby="summaryModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="reminderModalLabel">Lembretes de Ações Pendentes para Hoje</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <div class="modal-header bg-light">
+            <h5 class="modal-title section-title w-100" id="summaryModalLabel">2. Resumo após Reunião (Plano de Ação)</h5>
+            <button type="button" class="btn-close" onclick="openModal('client-data-modal')"></button>
           </div>
           <div class="modal-body">
-            <div id="reminders-list-output"></div>
+              <div class="mb-3">
+                  <label for="plano-acao" class="form-label fw-bold">Plano de Ação (máx. 2000):</label>
+                  <textarea id="plano-acao" class="form-control" maxlength="2000" rows="8"></textarea>
+              </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            <button type="button" class="btn btn-secondary" onclick="openModal('client-data-modal')"><i class="bi bi-arrow-left"></i> Voltar</button>
+            <button type="button" id="modal2-save-btn" class="btn btn-cobmais-success"><i class="bi bi-save"></i> Salvar Dados</button>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="modal fade" id="client-list-modal" tabindex="-1" aria-labelledby="clientListModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable">
+    <!-- Modal 3: Ações/Tarefas (Checklist) - Cadastro de Nova Tarefa -->
+    <div class="modal fade" id="tasks-modal" tabindex="-1" aria-labelledby="tasksModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-light">
+            <h5 class="modal-title section-title w-100" id="tasksModalLabel">3. Cadastrar Nova Tarefa</h5>
+            <button type="button" class="btn-close" onclick="openModal('client-data-modal')"></button>
+          </div>
+          <div class="modal-body">
+            <!-- Campos da Tarefa -->
+            <div class="mb-3">
+                <label for="nova-tarefa-input" class="form-label fw-bold">Descrição da Tarefa:</label>
+                <input type="text" id="nova-tarefa-input" class="form-control" placeholder="O que precisa ser feito?">
+            </div>
+
+            <!-- Data e Hora de Conclusão (Prazo) -->
+            <div class="row mb-3">
+                <div class="col-6">
+                    <label for="tarefa-due-date-input" class="form-label fw-bold"><i class="bi bi-calendar-check"></i> Data Conclusão:</label>
+                    <input type="date" id="tarefa-due-date-input" class="form-control">
+                </div>
+                <div class="col-6">
+                    <label for="hora-tarefa-input" class="form-label fw-bold"><i class="bi bi-clock"></i> Hora Conclusão:</label>
+                    <input type="time" id="hora-tarefa-input" class="form-control">
+                </div>
+            </div>
+            
+            <p class="text-danger small" id="task-modal-warning">Carregue ou crie um cliente no Modal 1 para cadastrar tarefas.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="openModal('client-data-modal')"><i class="bi bi-arrow-left"></i> Voltar</button>
+            <button type="button" id="modal3-add-btn" class="btn btn-cobmais-success" disabled><i class="bi bi-plus-circle"></i> Adicionar Tarefa</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Modal 4: Visualização de Tarefas por Cliente (Abre ao clicar na lista lateral) -->
+    <div class="modal fade" id="client-task-view-modal" tabindex="-1" aria-labelledby="clientTaskViewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="clientListModalLabel">Escolha um Cliente</h5>
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title section-title w-100" id="task-view-client-name">Resumo de Tarefas</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div id="client-list-output"></div>
+                    <div id="task-view-output">
+                        <!-- Tarefas Atrasadas -->
+                        <div class="mb-4">
+                            <h4 class="text-danger"><i class="bi bi-exclamation-triangle-fill"></i> Tarefas Atrasadas</h4>
+                            <div id="tasks-overdue-list" class="task-list-group"></div>
+                        </div>
+                        <!-- Tarefas Hoje -->
+                        <div class="mb-4">
+                            <h4 class="text-warning"><i class="bi bi-calendar-day"></i> Tarefas para Hoje</h4>
+                            <div id="tasks-today-list" class="task-list-group"></div>
+                        </div>
+                        <!-- Tarefas Futuras -->
+                        <div class="mb-4">
+                            <h4 class="text-primary"><i class="bi bi-calendar-event"></i> Tarefas Futuras</h4>
+                            <div id="tasks-future-list" class="task-list-group"></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="modal-footer d-flex justify-content-end gap-2">
-                    <button id="clear-list-selection-btn" type="button" class="btn btn-warning">Limpar Seleção</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Voltar</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="task-summary-modal" tabindex="-1" aria-labelledby="taskSummaryModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="summary-client-name">Tarefas do Cliente: [Nome]</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="summary-tasks-output"></div>
-                </div>
-                <div class="modal-footer d-flex justify-content-end gap-2">
-                    <button id="load-for-edit-btn" type="button" class="btn btn-success">Habilitar Edição no Resumo</button>
-                    <button id="exit-task-summary-btn" type="button" class="btn btn-danger">Sair (Voltar à Lista)</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
+    <!-- Modal 5: Edição de Tarefa (Usado ao clicar em uma tarefa no Modal 4) -->
     <div class="modal fade" id="task-edit-modal" tabindex="-1" aria-labelledby="taskEditModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="taskEditModalLabel">Editar Tarefa</h5>
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title section-title w-100" id="taskEditModalLabel">Editar Tarefa</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
@@ -202,11 +254,11 @@
                         </div>
                         <div class="row mb-3">
                             <div class="col-6">
-                                <label for="edit-due-date" class="form-label fw-bold">Prazo:</label>
+                                <label for="edit-due-date" class="form-label fw-bold">Data Conclusão:</label>
                                 <input type="date" id="edit-due-date" class="form-control">
                             </div>
                             <div class="col-6">
-                                <label for="edit-hora-tarefa" class="form-label fw-bold">Hora:</label>
+                                <label for="edit-hora-tarefa" class="form-label fw-bold">Hora Conclusão:</label>
                                 <input type="time" id="edit-hora-tarefa" class="form-control">
                             </div>
                         </div>
@@ -220,15 +272,50 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" id="save-edited-task-btn" class="btn btn-success">Salvar Alteração</button>
+                    <button type="button" id="save-edited-task-btn" class="btn btn-cobmais-success"><i class="bi bi-save"></i> Salvar Alteração</button>
                 </div>
             </div>
         </div>
     </div>
 
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Modal 6: Mensagem (Substitui alert/confirm) -->
+    <div class="modal fade" id="message-modal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="messageModalLabel">Atenção</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="messageModalBody"></div>
+                <div class="modal-footer" id="messageModalFooter">
+                    <!-- Botões injetados dinamicamente -->
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
     
-    <script src="script.js"></script> 
+    <!-- Modal 7: Relatório/Filtro Global de Tarefas (Antigo Reminder Modal) -->
+    <div class="modal fade" id="global-tasks-modal" tabindex="-1" aria-labelledby="globalTasksModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header bg-light">
+            <h5 class="modal-title section-title w-100" id="globalTasksModalLabel">Filtro Global de Tarefas</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div id="global-tasks-output"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    
+    <script src="./script.js"></script> 
 </body>
 </html>
