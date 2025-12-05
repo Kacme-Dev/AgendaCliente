@@ -56,6 +56,7 @@ function closeModal(modalId) {
 /** Abre um modal (usado para navegação) */
 function openModal(modalId) {
     // Fecha qualquer modal que esteja aberto
+    // Garante que o clientTaskViewModalInstance seja fechado se estiver aberto
     [clientDataModalInstance, summaryModalInstance, tasksModalInstance, clientTaskViewModalInstance, taskEditModalInstance].forEach(instance => {
         if (instance) instance.hide();
     });
@@ -144,6 +145,7 @@ function isTaskOverdue(tarefa) {
 
     // 2. Lógica para o dia de hoje (com hora)
     if (taskDate === todayDate) {
+        // Comparação de horas (string) funciona para HH:MM (ex: '10:00' > '09:00')
         if (currentTime > taskTime) {
             return true;
         }
@@ -309,6 +311,7 @@ function addTarefa() {
     // Campos de criação (injetados no modal)
     const createdDateElem = document.getElementById('tarefa-create-date');
     const createdTimeElem = document.getElementById('tarefa-create-time');
+    // Se os campos existirem, usa o valor deles, senão usa a data/hora atual
     const createdDate = createdDateElem ? createdDateElem.value : getTodayDateString();
     const createdTime = createdTimeElem ? createdTimeElem.value : getCurrentTimeString();
 
@@ -358,18 +361,33 @@ function concludeTask(clientCode, taskIndex) {
         return;
     }
 
-    task.concluida = true;
-    // opcional: armazenar data/hora de conclusão
-    task.concluded_date = getTodayDateString();
-    task.concluded_time = getCurrentTimeString();
+    const confirmAction = () => {
+        task.concluida = true;
+        // opcional: armazenar data/hora de conclusão
+        task.concluded_date = getTodayDateString();
+        task.concluded_time = getCurrentTimeString();
 
-    saveAllClients();
-    showMessage("Sucesso", "Tarefa marcada como concluída.", 'success');
-
-    // Recarrega a visualização de tarefas (se estiver aberta para este cliente)
-    if (document.getElementById('client-task-view-modal').classList.contains('show')) {
-        showClientTaskViewModal(clientCode);
+        saveAllClients();
+        showMessage("Sucesso", "Tarefa marcada como concluída.", 'success');
+        
+        // CORREÇÃO: Recarrega a visualização de tarefas do cliente para remover o item imediatamente
+        // (Isso resolve o problema de 'travamento'/item não sumir)
+        if (document.getElementById('client-task-view-modal').classList.contains('show')) {
+            showClientTaskViewModal(clientCode);
+        } else if (document.getElementById('global-tasks-modal').classList.contains('show')) {
+            // Se o modal global estiver aberto, recarrega o filtro ativo
+            const currentFilter = document.getElementById('globalTasksModalLabel').textContent.includes('Atrasadas') ? 'overdue' : 
+                                  document.getElementById('globalTasksModalLabel').textContent.includes('Hoje') ? 'today' :
+                                  document.getElementById('globalTasksModalLabel').textContent.includes('Futuras') ? 'future' : 'report';
+            
+            // Só recarrega se o filtro não for o relatório (onde tarefas concluídas continuam)
+            if (currentFilter !== 'report') {
+                showGlobalTasks(currentFilter);
+            }
+        }
     }
+    
+    showMessage("Confirmação", `Deseja realmente marcar a tarefa "${task.descricao}" do cliente ${client.codigo} como CONCLUÍDA?`, 'info', confirmAction);
 }
 
 // Salva as alterações feitas no modal de edição rápida (Modal 5)
@@ -386,6 +404,12 @@ function saveEditedTask() {
     
     const taskToUpdate = clients[clientIndex].tarefas[taskIndex];
     
+    // Verifica se a tarefa já está concluída para bloquear edição
+    if (taskToUpdate.concluida) {
+        showMessage("Atenção", "Não é possível editar uma tarefa já concluída.", 'warning');
+        return;
+    }
+
     const newDescription = document.getElementById('edit-descricao').value.trim();
     const newDueDate = document.getElementById('edit-due-date').value;
     const newDueTime = document.getElementById('edit-hora-tarefa').value;
@@ -406,9 +430,17 @@ function saveEditedTask() {
     showMessage("Sucesso", "Tarefa atualizada com sucesso!", 'success');
     
     taskEditModalInstance.hide();
+    
     // Tenta recarregar o modal de visualização de tarefas se estiver aberto
     if (document.getElementById('client-task-view-modal').classList.contains('show')) {
         showClientTaskViewModal(clientCode);
+    } else if (document.getElementById('global-tasks-modal').classList.contains('show')) {
+        // Se o modal global estiver aberto, recarrega o filtro ativo
+        const currentFilter = document.getElementById('globalTasksModalLabel').textContent.includes('Atrasadas') ? 'overdue' : 
+                              document.getElementById('globalTasksModalLabel').textContent.includes('Hoje') ? 'today' :
+                              document.getElementById('globalTasksModalLabel').textContent.includes('Futuras') ? 'future' : 'report';
+        
+        showGlobalTasks(currentFilter);
     }
 }
 
@@ -421,6 +453,12 @@ function openTaskEditModal(clientCode, taskIndex) {
     }
     const task = client.tarefas[taskIndex];
     
+    // Bloqueia edição se a tarefa estiver concluída
+    if (task.concluida) {
+        showMessage("Atenção", "Esta tarefa já foi concluída e não pode ser editada.", 'info');
+        return;
+    }
+
     document.getElementById('edit-client-code').value = clientCode;
     document.getElementById('edit-task-index').value = taskIndex;
     
@@ -429,7 +467,13 @@ function openTaskEditModal(clientCode, taskIndex) {
     document.getElementById('edit-hora-tarefa').value = task.hora_tarefa || '';
     document.getElementById('edit-concluida').checked = task.concluida;
     
-    clientTaskViewModalInstance.hide(); // Fecha o modal de visualização para abrir o de edição
+    // Fecha o modal de visualização (se aberto) ou o modal global
+    if (document.getElementById('client-task-view-modal').classList.contains('show')) {
+        clientTaskViewModalInstance.hide(); 
+    } else if (document.getElementById('global-tasks-modal').classList.contains('show')) {
+        globalTasksModalInstance.hide();
+    }
+    
     taskEditModalInstance.show();
 }
 
@@ -498,32 +542,41 @@ function showClientTaskViewModal(codigo) {
     
     const todayDate = getTodayDateString();
 
+    // Filtra APENAS tarefas NÃO CONCLUÍDAS para esta visualização
     allTasks.filter(t => !t.concluida).forEach((t, index) => {
-        const isOverdue = isTaskOverdue(t);
+        const isOverdue = isTaskOverdue(t); // Lógica de atraso considera hora
         
         if (isOverdue) {
-            overdueTasks.push({...t, index: index, clientCode: codigo});
+            // Usamos o índice original no array de tarefas do cliente
+            const originalIndex = client.tarefas.findIndex(task => task.descricao === t.descricao && task.due_date === t.due_date && task.created_date === t.created_date);
+            if (originalIndex !== -1) overdueTasks.push({...t, index: originalIndex, clientCode: codigo});
+
         } else if (t.due_date === todayDate) {
-            todayTasks.push({...t, index: index, clientCode: codigo});
+            const originalIndex = client.tarefas.findIndex(task => task.descricao === t.descricao && task.due_date === t.due_date && task.created_date === t.created_date);
+            if (originalIndex !== -1) todayTasks.push({...t, index: originalIndex, clientCode: codigo});
+
         } else if (t.due_date > todayDate) {
-            futureTasks.push({...t, index: index, clientCode: codigo});
+            const originalIndex = client.tarefas.findIndex(task => task.descricao === t.descricao && task.due_date === t.due_date && task.created_date === t.created_date);
+            if (originalIndex !== -1) futureTasks.push({...t, index: originalIndex, clientCode: codigo});
         }
-        // Tarefas sem prazo são ignoradas neste filtro por categoria de data
     });
     
     // Função auxiliar para renderizar a lista
     const renderTaskList = (tasks, containerId) => {
         const container = document.getElementById(containerId);
         if (tasks.length === 0) {
-            container.innerHTML = `<div class="alert alert-info">Não existem tarefas ${containerId.replace('tasks-', '').replace('-list', '')}.</div>`;
+            const listName = containerId.replace('tasks-', '').replace('-list', '');
+            container.innerHTML = `<div class="alert alert-success">Não existem tarefas ${listName} pendentes.</div>`;
             return;
         }
         
         tasks.forEach(t => {
             const itemDiv = document.createElement('div');
-            itemDiv.className = `p-3 mb-2 border rounded cursor-pointer ${containerId === 'tasks-overdue-list' ? 'overdue-task' : (containerId === 'tasks-today-list' ? 'today-task' : 'bg-white')}`;
+            // 'overdue-task' e 'today-task' estão definidos no styles.css
+            const statusClass = containerId === 'tasks-overdue-list' ? 'overdue-task' : (containerId === 'tasks-today-list' ? 'today-task' : 'bg-white');
+            itemDiv.className = `p-3 mb-2 border rounded cursor-pointer ${statusClass}`;
 
-            // Constrói o innerHTML com botões Concluir (antes) e Editar (mantido)
+            // Constrói o innerHTML com botões Concluir e Editar
             itemDiv.innerHTML = `
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
@@ -543,7 +596,7 @@ function showClientTaskViewModal(codigo) {
                     </div>
                 </div>
             `;
-            // Adiciona listeners dos botões
+            // Adiciona listeners dos botões - usa e.currentTarget para garantir que pega o botão correto
             const concludeBtn = itemDiv.querySelector('.conclude-task-btn');
             concludeBtn.addEventListener('click', (e) => {
                 const clientCode = e.currentTarget.dataset.clientCode;
@@ -573,7 +626,8 @@ function updateOverdueAlert() {
     let overdueCount = 0;
     clients.forEach(client => {
         const tasks = client.tarefas || [];
-        overdueCount += tasks.filter(t => isTaskOverdue(t)).length;
+        // Conta apenas as tarefas que não estão concluídas e estão atrasadas
+        overdueCount += tasks.filter(t => !t.concluida && isTaskOverdue(t)).length;
     });
 
     const btn = document.getElementById('show-overdue-tasks-btn');
@@ -606,19 +660,22 @@ function showGlobalTasks(filterType) {
             const isFuture = t.due_date > todayDate && !isOverdue;
             const isCompleted = t.concluida;
             
+            // Cria um objeto de tarefa enriquecido, incluindo o cliente e o índice
+            const taskWithClient = {...t, index, client, clientCode: client.codigo};
+            
             if (filterType === 'report') {
                 // Relatório Diário: Tarefas do dia (concluídas e não concluídas)
                 if (t.due_date === todayDate) {
-                     allFilteredTasks.push({...t, index, client});
+                     allFilteredTasks.push(taskWithClient);
                 }
             } else if (!isCompleted) {
                 // Filtros de Status (apenas não concluídas)
                 if (filterType === 'overdue' && isOverdue) {
-                    allFilteredTasks.push({...t, index, client});
+                    allFilteredTasks.push(taskWithClient);
                 } else if (filterType === 'today' && isToday) {
-                    allFilteredTasks.push({...t, index, client});
+                    allFilteredTasks.push(taskWithClient);
                 } else if (filterType === 'future' && isFuture) {
-                    allFilteredTasks.push({...t, index, client});
+                    allFilteredTasks.push(taskWithClient);
                 }
             }
         });
@@ -648,9 +705,24 @@ function showGlobalTasks(filterType) {
             const statusClass = t.concluida ? 'completed-task' : (isTaskOverdue(t) ? 'overdue-task' : (t.due_date === todayDate ? 'today-task' : 'bg-white'));
             const statusBadge = t.concluida ? '✅ Concluída' : (isTaskOverdue(t) ? '!!! ATRASADA' : 'A Fazer');
             
+            // Cria os botões apenas para filtros de status (não-concluídas)
+            const actionButtons = (filterType !== 'report' && !t.concluida) ? 
+                `
+                <div class="d-flex gap-2 align-items-center mt-2">
+                    <button type="button" class="btn btn-sm btn-success conclude-task-btn" 
+                            data-client-code="${t.clientCode}" data-task-index="${t.index}">
+                        Concluir
+                    </button>
+                    <button type="button" class="btn btn-sm btn-primary edit-task-btn" 
+                            data-client-code="${t.clientCode}" data-task-index="${t.index}">
+                        Editar
+                    </button>
+                </div>
+                ` : '';
+
             html += `
                 <div class="p-3 mb-2 border rounded shadow-sm ${statusClass}">
-                    <div class="d-flex justify-content-between">
+                    <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <p class="mb-1"><strong>Cliente: ${t.client.codigo} - ${t.client['nome-cliente']}</strong></p>
                             <p class="mb-0">${t.descricao}</p>
@@ -660,10 +732,31 @@ function showGlobalTasks(filterType) {
                             <p class="small text-muted mb-0">Prazo: ${t.due_date} ${t.hora_tarefa ? `às ${t.hora_tarefa}` : ''}</p>
                         </div>
                     </div>
+                    ${actionButtons}
                 </div>
             `;
         });
+        
         outputContainer.innerHTML = html;
+        
+        // Adiciona listeners aos novos botões (só existem se filterType !== 'report')
+        if (filterType !== 'report') {
+            outputContainer.querySelectorAll('.conclude-task-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const clientCode = e.currentTarget.dataset.clientCode;
+                    const taskIndex = parseInt(e.currentTarget.dataset.taskIndex);
+                    concludeTask(clientCode, taskIndex);
+                });
+            });
+
+            outputContainer.querySelectorAll('.edit-task-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const clientCode = e.currentTarget.dataset.clientCode;
+                    const taskIndex = parseInt(e.currentTarget.dataset.taskIndex);
+                    openTaskEditModal(clientCode, taskIndex);
+                });
+            });
+        }
     }
 
     globalTasksModalInstance.show();
@@ -831,6 +924,19 @@ function setupEventListeners() {
             if (ct) ct.value = getCurrentTimeString();
         });
     }
+    
+    // 8. Ao fechar o Modal 5 (Edição de Tarefa), reabre o Modal 4 (Visualização)
+    document.getElementById('task-edit-modal').addEventListener('hidden.bs.modal', () => {
+        const clientCode = document.getElementById('edit-client-code').value;
+        // Verifica se o modal global está aberto para reabri-lo, senão tenta reabrir o de visualização
+        if (!document.getElementById('global-tasks-modal').classList.contains('show')) {
+            // Reabre o modal de visualização do cliente (Modal 4)
+            showClientTaskViewModal(clientCode);
+        } else {
+            // Se o modal global estiver aberto, apenas se certifica que está visível
+            globalTasksModalInstance.show();
+        }
+    });
 }
 
 // --- Lógica de Notificações Agendadas ---
@@ -855,6 +961,7 @@ function checkScheduledTasks() {
         client.tarefas.forEach(task => {
             // Verifica: não concluída, é para hoje, horário coincide
             if (!task.concluida && task.due_date === todayDate && task.hora_tarefa === currentTime) {
+                // Checa se já notificou neste mesmo minuto
                 if (task.last_notified !== currentTime) { 
                     task.last_notified = currentTime;
                     
@@ -865,9 +972,20 @@ function checkScheduledTasks() {
                     // Salva a marcação no cliente para evitar repetição no mesmo minuto
                     let clientToUpdate = clients.find(c => c.codigo === client.codigo);
                     if (clientToUpdate) {
-                        clientToUpdate.tarefas.find(t => t.descricao === task.descricao).last_notified = currentTime;
+                        // Encontra a tarefa exata (pode ter várias com a mesma descrição, mas com datas de criação diferentes)
+                        const taskIndex = clientToUpdate.tarefas.findIndex(t => 
+                            t.descricao === task.descricao && 
+                            t.due_date === task.due_date && 
+                            t.hora_tarefa === task.hora_tarefa &&
+                            t.created_date === task.created_date &&
+                            t.created_time === task.created_time
+                        );
+                        
+                        if (taskIndex !== -1) {
+                            clientToUpdate.tarefas[taskIndex].last_notified = currentTime;
+                            saveAllClients(); 
+                        }
                     }
-                    saveAllClients(); 
                 }
             }
         });
