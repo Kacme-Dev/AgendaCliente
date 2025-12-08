@@ -504,6 +504,22 @@ function openTaskEditModal(clientCode, taskIndex) {
 // --- Sidebar Fixo (Lista de Clientes) ---
 
 // Exibe o modal com a lista de todos os clientes cadastrados
+// --- Utilidade para Ordenação ---
+
+/**
+ * Formata o código do cliente para garantir 4 dígitos, preenchendo com zeros à esquerda.
+ * Ex: '889' -> '0889', '338' -> '0338', '1000' -> '1000'.
+ * @param {string} codigo O código do cliente (string).
+ * @returns {string} O código formatado com 4 dígitos.
+ */
+function formatClientCode(codigo) {
+    // Garante que o código seja tratado como string para usar padStart
+    return String(codigo).padStart(4, '0');
+}
+
+// --- Sidebar Fixo (Lista de Clientes) ---
+
+// Exibe o modal com a lista de todos os clientes cadastrados
 function showClientListSidebar() {
     const listOutput = document.getElementById('client-list-output');
     listOutput.innerHTML = ''; 
@@ -512,20 +528,21 @@ function showClientListSidebar() {
         listOutput.innerHTML = '<p class="alert alert-info small">Nenhum cliente cadastrado.</p>';
     } else {
         // 1. Clonar e Ordenar a lista de clientes
-        // O método .slice() cria uma cópia rasa do array para não modificar a ordem do original 'clients'.
         const sortedClients = clients.slice().sort((a, b) => {
-            // Compara os códigos de cliente (que geralmente são strings)
-            // Se o código for numérico, você pode usar: 
-            // return parseInt(a.codigo) - parseInt(b.codigo);
-            // Mas a comparação de string com localeCompare é mais segura para códigos alfanuméricos
-            return a.codigo.localeCompare(b.codigo);
+            // Aplica a formatação de 4 dígitos (com zero padding) antes da comparação
+            const codeA = formatClientCode(a.codigo);
+            const codeB = formatClientCode(b.codigo);
+
+            // Compara os códigos já formatados lexicograficamente (alfabeticamente)
+            return codeA.localeCompare(codeB);
         });
 
         // 2. Iterar sobre a lista ordenada
-        sortedClients.forEach(client => { // Alterado para iterar sobre sortedClients
+        sortedClients.forEach(client => {
             const div = document.createElement('div');
             div.className = 'client-list-item';
             div.dataset.clientId = client.codigo;
+            // Exibe o código original (sem o zero padding na interface, se não for padrão)
             div.innerHTML = `<strong>${client.codigo}</strong> - ${client['nome-cliente']}`;
             
             // Ao clicar, abre o modal de resumo/visualização de tarefas
