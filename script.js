@@ -480,7 +480,7 @@ function openTaskEditModal(clientCode, taskIndex) {
 // --- Sidebar Fixo (Lista de Clientes) ---
 
 // Exibe o modal com a lista de todos os clientes cadastrados
-function showClientListSidebar() {
+/*function showClientListSidebar() {
     const listOutput = document.getElementById('client-list-output');
     listOutput.innerHTML = ''; 
 
@@ -488,6 +488,41 @@ function showClientListSidebar() {
         listOutput.innerHTML = '<p class="alert alert-info small">Nenhum cliente cadastrado.</p>';
     } else {
         clients.forEach(client => {
+            const div = document.createElement('div');
+            div.className = 'client-list-item';
+            div.dataset.clientId = client.codigo;
+            div.innerHTML = `<strong>${client.codigo}</strong> - ${client['nome-cliente']}`;
+            
+            // Ao clicar, abre o modal de resumo/visualização de tarefas
+            div.addEventListener('click', () => showClientTaskViewModal(client.codigo));
+            
+            listOutput.appendChild(div);
+        });
+    }
+}*/
+
+// --- Sidebar Fixo (Lista de Clientes) ---
+
+// Exibe o modal com a lista de todos os clientes cadastrados
+function showClientListSidebar() {
+    const listOutput = document.getElementById('client-list-output');
+    listOutput.innerHTML = ''; 
+
+    if (clients.length === 0) {
+        listOutput.innerHTML = '<p class="alert alert-info small">Nenhum cliente cadastrado.</p>';
+    } else {
+        // 1. Clonar e Ordenar a lista de clientes
+        // O método .slice() cria uma cópia rasa do array para não modificar a ordem do original 'clients'.
+        const sortedClients = clients.slice().sort((a, b) => {
+            // Compara os códigos de cliente (que geralmente são strings)
+            // Se o código for numérico, você pode usar: 
+            // return parseInt(a.codigo) - parseInt(b.codigo);
+            // Mas a comparação de string com localeCompare é mais segura para códigos alfanuméricos
+            return a.codigo.localeCompare(b.codigo);
+        });
+
+        // 2. Iterar sobre a lista ordenada
+        sortedClients.forEach(client => { // Alterado para iterar sobre sortedClients
             const div = document.createElement('div');
             div.className = 'client-list-item';
             div.dataset.clientId = client.codigo;
