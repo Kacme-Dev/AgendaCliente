@@ -1,151 +1,101 @@
-/* PALETA DE CORES COBMAIS (Tons ajustados para contraste e uso em interface) */
-        :root {
-            --color-primary: #1A5B8A; /* Azul Escuro Principal */
-            --color-secondary: #0099CC; /* Azul Ciano/Brilhante (Uso em destaque) */
-            --color-success: #63A948; /* Verde Sucesso */
-            --color-warning: #FFC107; /* Amarelo Atenção */
-            --color-danger: #DC3545; /* Vermelho Perigo/Atrasado */
-            --color-light-bg: #F4F7F9; /* Fundo Claro */
-        }
+/* PALETA DE CORES COBMAIS */
+:root {
+    --color-primary: #1A5B8A;
+    --color-secondary: #0099CC;
+    --color-success: #63A948;
+    --color-warning: #FFC107;
+    --color-danger: #DC3545;
+    --color-light-bg: #F4F7F9;
+}
 
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: var(--color-light-bg);
-            color: #333;
-            min-height: 100vh;
-            /* Garante que o conteúdo não deslize para baixo do header fixo */
-            padding-top: 70px; 
-            padding-left: 300px; /* Espaço para o Modal Fixo Lateral */
-        }
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: var(--color-light-bg);
+    color: #333;
+    min-height: 100vh;
+    padding-top: 70px; 
+    padding-left: 300px;
+}
 
-        /* Estilo para o cabeçalho fixo */
-        .custom-header {
-            background-color: var(--color-primary);
-            color: white;
-            padding: 1rem 0;
-            position: fixed;
-            top: 0;
-            left: 300px; /* Alinha após a barra lateral */
-            right: 0;
-            z-index: 1020; /* Acima do conteúdo principal, abaixo dos modais */
-        }
-        
-        /* Ajuste para telas pequenas */
-        @media (max-width: 991px) {
-            body {
-                padding-left: 20px; /* Remove o padding do sidebar */
-                padding-top: 100px; /* Aumenta o padding superior */
-            }
-            .custom-header {
-                left: 0;
-                padding: 0.5rem 1rem;
-            }
-            .main-content {
-                margin-top: 0 !important;
-            }
-        }
+.custom-header {
+    background-color: var(--color-primary);
+    color: white;
+    padding: 1rem 0;
+    position: fixed;
+    top: 0;
+    left: 300px;
+    right: 0;
+    z-index: 1020;
+}
 
-        /* Estilo para a área principal de conteúdo */
-        .main-content {
-            max-width: 900px;
-        }
+@media (max-width: 991px) {
+    body { padding-left: 20px; padding-top: 100px; }
+    .custom-header { left: 0; }
+    .client-list-sidebar { display: none; }
+}
 
-        /* Estilo para títulos de seção */
-        .section-title {
-            color: var(--color-primary);
-            border-bottom: 2px solid var(--color-secondary);
-            padding-bottom: 10px;
-            margin-top: 0;
-            margin-bottom: 20px;
-        }
+.main-content { max-width: 900px; }
 
-        /* Modal Fixo Lateral Esquerdo (Lista de Clientes) */
-        .client-list-sidebar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            width: 300px;
-            background-color: #fff;
-            border-right: 1px solid #ddd;
-            padding: 20px;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
-            z-index: 1000;
-            overflow-y: auto;
-        }
-        
-        /* Oculta o Sidebar em telas pequenas */
-        @media (max-width: 991px) {
-            .client-list-sidebar {
-                display: none;
-            }
-        }
+.section-title {
+    color: var(--color-primary);
+    border-bottom: 2px solid var(--color-secondary);
+    padding-bottom: 10px;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
 
-        .client-list-item {
-            padding: 10px;
-            margin-bottom: 5px;
-            border: 1px solid #ddd;
-            border-left: 5px solid var(--color-secondary);
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.1s;
-        }
+.client-list-sidebar {
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 300px;
+    background-color: #fff;
+    border-right: 1px solid #ddd;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+    z-index: 1000;
+    overflow-y: auto;
+}
 
-        .client-list-item:hover {
-            background-color: var(--color-light-bg);
-            transform: translateY(-1px);
-        }
+.client-list-item {
+    padding: 12px;
+    margin-bottom: 8px;
+    border: 1px solid #ddd;
+    border-left: 5px solid var(--color-secondary);
+    border-radius: 4px;
+    transition: all 0.2s;
+}
 
-        /* Estilos de Tarefas */
-        .completed-task {
-            text-decoration: line-through;
-            opacity: 0.7;
-            background-color: #e6f7df !important; /* Verde claro */
-            border-left: 5px solid var(--color-success) !important;
-        }
+.client-list-item:hover { background-color: #f8f9fa; }
 
-        .overdue-task {
-            background-color: #f8d7da !important; /* Vermelho claro */
-            border-left: 5px solid var(--color-danger) !important;
-            font-weight: bold;
-        }
-        
-        .today-task {
-            background-color: #fff3cd !important; /* Amarelo claro */
-            border-left: 5px solid var(--color-warning) !important;
-        }
+.completed-task {
+    text-decoration: line-through;
+    opacity: 0.7;
+    background-color: #e6f7df !important;
+    border-left: 5px solid var(--color-success) !important;
+}
 
-        /* Estilo para o botão de destaque de tarefas atrasadas */
-        .btn-overdue-alert {
-            animation: pulse-red 1s infinite;
-            background-color: var(--color-danger) !important;
-            border-color: var(--color-danger) !important;
-            color: white !important;
-        }
+.overdue-task {
+    background-color: #f8d7da !important;
+    border-left: 5px solid var(--color-danger) !important;
+}
 
-        @keyframes pulse-red {
-            0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
-        }
-        
-        /* Cores dos Botões Customizadas */
-        .btn-cobmais-primary {
-            background-color: var(--color-primary);
-            border-color: var(--color-primary);
-            color: white;
-            transition: background-color 0.2s;
-        }
-        .btn-cobmais-primary:hover {
-            background-color: #154e73;
-            border-color: #154e73;
-        }
-        .btn-cobmais-success {
-            background-color: var(--color-success);
-            border-color: var(--color-success);
-            color: white;
-        }
-        .btn-cobmais-success:hover {
-            background-color: #518b3d;
-            border-color: #518b3d;
-        }
+.today-task {
+    background-color: #fff3cd !important;
+    border-left: 5px solid var(--color-warning) !important;
+}
+
+.btn-overdue-alert {
+    animation: pulse-red 1s infinite;
+    background-color: var(--color-danger) !important;
+    border-color: var(--color-danger) !important;
+    color: white !important;
+}
+
+@keyframes pulse-red {
+    0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+}
+
+.btn-cobmais-primary { background-color: var(--color-primary); border-color: var(--color-primary); color: white; }
+.btn-cobmais-success { background-color: var(--color-success); border-color: var(--color-success); color: white; }
