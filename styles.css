@@ -65,7 +65,10 @@ body {
     transition: all 0.2s;
 }
 
-.client-list-item:hover { background-color: #f8f9fa; }
+.client-list-item:hover { 
+    background-color: #f8f9fa; 
+    cursor: pointer;
+}
 
 .completed-task {
     text-decoration: line-through;

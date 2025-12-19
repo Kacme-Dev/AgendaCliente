@@ -18,8 +18,6 @@ let currentClientCode = null;
 let clientDataModalInstance;
 let summaryModalInstance;
 let tasksModalInstance;
-let clientTaskViewModalInstance;
-let taskEditModalInstance;
 let messageModalInstance;
 let globalTasksModalInstance;
 
@@ -28,8 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
     clientDataModalInstance = new bootstrap.Modal(document.getElementById('client-data-modal'));
     summaryModalInstance = new bootstrap.Modal(document.getElementById('summary-modal'));
     tasksModalInstance = new bootstrap.Modal(document.getElementById('tasks-modal'));
-    clientTaskViewModalInstance = new bootstrap.Modal(document.getElementById('client-task-view-modal'));
-    taskEditModalInstance = new bootstrap.Modal(document.getElementById('task-edit-modal'));
     messageModalInstance = new bootstrap.Modal(document.getElementById('message-modal'));
     globalTasksModalInstance = new bootstrap.Modal(document.getElementById('global-tasks-modal'));
 
@@ -104,6 +100,11 @@ function saveAllClients() {
     localStorage.setItem(CLIENTS_ARRAY_KEY, JSON.stringify(clients));
     showClientListSidebar();
     updateOverdueAlert();
+    // Se houver um cliente carregado, atualiza o contador dele
+    if (currentClientCode) {
+        const client = clients.find(c => c.codigo === currentClientCode);
+        if (client) updateCountdown(client['data-inicio']);
+    }
 }
 
 function showClientListSidebar() {
@@ -117,46 +118,22 @@ function showClientListSidebar() {
     sorted.forEach(client => {
         const div = document.createElement('div');
         div.className = 'client-list-item';
+        // MODIFICAÇÃO: Apenas chama o loadClientData (que abre a seção main), sem abrir modal
         div.innerHTML = `
-            <div class="cursor-pointer mb-2" onclick="loadClientAndOpenModal('${client.codigo}')">
+            <div class="cursor-pointer" onclick="loadClientDataByCode('${client.codigo}')">
                 <strong>${client.codigo}</strong> - ${client['nome-cliente']}
-            </div>
-            <div class="d-flex gap-1">
-                <button class="btn btn-xs btn-info py-0 px-2 small text-dark" onclick="openClientSummary('${client.codigo}')">Resumo</button>
-                <button class="btn btn-xs btn-warning py-0 px-2 small text-dark" onclick="openClientTaskEntry('${client.codigo}')">Tarefa</button>
             </div>
         `;
         listOutput.appendChild(div);
     });
 }
 
-// --- Navegação entre Modais ---
-
-function loadClientAndOpenModal(code) {
-    const client = clients.find(c => c.codigo === code);
-    if (client) {
-        loadClientData(client);
-        clientDataModalInstance.show();
-    }
-}
-
-function openClientSummary(code) {
-    const client = clients.find(c => c.codigo === code);
-    if (client) {
-        loadClientData(client);
-        summaryModalInstance.show();
-    }
-}
-
-function openClientTaskEntry(code) {
-    const client = clients.find(c => c.codigo === code);
-    if (client) {
-        loadClientData(client);
-        tasksModalInstance.show();
-    }
-}
-
 // --- Funções de Dados ---
+
+function loadClientDataByCode(code) {
+    const client = clients.find(c => c.codigo === code);
+    if (client) loadClientData(client);
+}
 
 function loadClientData(client) {
     currentClientCode = client.codigo;
@@ -199,6 +176,7 @@ function saveOrUpdateClient() {
     saveAllClients();
     loadClientData(data);
     showMessage("Sucesso", "Dados salvos com sucesso!", "success");
+    clientDataModalInstance.hide();
     return true;
 }
 
@@ -221,6 +199,7 @@ function addTarefa() {
         });
         saveAllClients();
         document.getElementById('nova-tarefa-input').value = '';
+        tasksModalInstance.hide();
         showMessage("Sucesso", "Tarefa adicionada!", "success");
     }
 }
@@ -292,6 +271,8 @@ function updateCountdown(dataStr) {
     span.className = diff < 5 ? 'text-danger fw-bold' : 'text-success fw-bold';
 
     const client = clients.find(c => c.codigo === currentClientCode);
+    if (!client) return;
+    
     const tasks = client.tarefas || [];
     const tStr = getTodayDateString();
     overdueEl.textContent = tasks.filter(t => !t.concluida && isTaskOverdue(t)).length;
@@ -308,14 +289,12 @@ function updateOverdueAlert() {
 // --- Event Listeners ---
 
 function setupEventListeners() {
-    // MODIFICAÇÃO SOLICITADA: Apenas carrega os dados no container, sem abrir o modal
+    // Busca e carrega dados na tela principal
     document.getElementById('search-btn-direct').onclick = () => {
         const query = document.getElementById('search-input').value.trim();
         const found = clients.find(c => c.codigo === query || c['nome-cliente'].toLowerCase().includes(query.toLowerCase()));
         if (found) {
             loadClientData(found);
-            // A section #search-container já está visível por padrão, 
-            // a função loadClientData apenas atualiza o conteúdo e exibe o #prazo-container dentro da main.
         } else {
             showMessage("Não encontrado", "Cliente não existe. Deseja cadastrar?", "warning", () => {
                 clearFormData(true);
@@ -324,9 +303,22 @@ function setupEventListeners() {
         }
     };
 
+    // Botões de ação dentro do Prazo-Container (Status)
+    document.getElementById('btn-resumo-status').onclick = () => {
+        if(currentClientCode) summaryModalInstance.show();
+    };
+    
+    document.getElementById('btn-tarefa-status').onclick = () => {
+        if(currentClientCode) tasksModalInstance.show();
+    };
+
+    document.getElementById('btn-edit-status').onclick = () => {
+        if(currentClientCode) clientDataModalInstance.show();
+    };
+
     document.getElementById('reset-client-btn').onclick = () => clearFormData();
     document.getElementById('new-client-btn').onclick = () => { clearFormData(true); clientDataModalInstance.show(); };
-    document.getElementById('modal1-back-btn').onclick = () => { clearFormData(); clientDataModalInstance.hide(); };
+    document.getElementById('modal1-back-btn').onclick = () => { clientDataModalInstance.hide(); };
     document.getElementById('modal1-save-btn').onclick = () => saveOrUpdateClient();
     document.getElementById('modal2-save-btn').onclick = () => { if(saveOrUpdateClient()) summaryModalInstance.hide(); };
     document.getElementById('modal3-add-btn').onclick = () => addTarefa();
