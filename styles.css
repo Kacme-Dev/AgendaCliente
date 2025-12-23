@@ -5,7 +5,7 @@
     --color-success: #63A948;
     --color-warning: #FFC107;
     --color-danger: #DC3545;
-    --color-light-bg: #F4F7F9;
+    --color-light-bg: #0A1626;
 }
 
 body {
@@ -18,7 +18,7 @@ body {
 }
 
 .custom-header {
-    background-color: var(--color-primary);
+    background-color: #1E478E;
     color: white;
     padding: 1rem 0;
     position: fixed;
@@ -48,7 +48,7 @@ body {
     position: fixed;
     top: 0; left: 0; bottom: 0;
     width: 300px;
-    background-color: #fff;
+    background-color: #404142;
     border-right: 1px solid #ddd;
     padding: 20px;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
@@ -59,6 +59,7 @@ body {
 .client-list-item {
     padding: 12px;
     margin-bottom: 8px;
+    background-color: #f8f9fa; 
     border: 1px solid #ddd;
     border-left: 5px solid var(--color-secondary);
     border-radius: 4px;
@@ -66,7 +67,7 @@ body {
 }
 
 .client-list-item:hover { 
-    background-color: #f8f9fa; 
+    background-color: #e8e8e8; 
     cursor: pointer;
 }
 
