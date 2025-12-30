@@ -46,7 +46,7 @@ function getCurrentTimeString() {
     return String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
 }
 
-// NOVO: Função para formatar data de YYYY-MM-DD para DD/MM/YYYY
+// Função para formatar data de YYYY-MM-DD para DD/MM/YYYY
 function formatDateToBR(dateStr) {
     if (!dateStr) return '';
     const parts = dateStr.split('-');
@@ -187,6 +187,21 @@ function saveOrUpdateClient() {
     return true;
 }
 
+// IMPLEMENTAÇÃO: Excluir cliente por completo
+function deleteCurrentClient() {
+    if (!currentClientCode) return;
+    
+    const action = () => {
+        clients = clients.filter(c => c.codigo !== currentClientCode);
+        saveAllClients();
+        clearFormData();
+        clientDataModalInstance.hide();
+        showMessage("Excluído", "Cliente removido com sucesso.", "success");
+    };
+
+    showMessage("Confirmação", "Tem certeza que deseja excluir permanentemente este cliente e todas as suas tarefas?", "danger", action);
+}
+
 // --- Tarefas ---
 
 function addTarefa() {
@@ -211,7 +226,76 @@ function addTarefa() {
     }
 }
 
-// MODIFICADO: Adicionado destaque amarelo no nome do cliente, suporte para filtro por cliente específico e FORMATAÇÃO DE DATA BR
+// IMPLEMENTAÇÃO: Mostrar tarefas abaixo do container de busca (fixo)
+function showFixedGlobalTasks(filterType) {
+    const container = document.getElementById('fixed-tasks-container');
+    const output = document.getElementById('fixed-tasks-output');
+    const title = document.getElementById('fixed-tasks-title');
+    
+    output.innerHTML = '';
+    const today = getTodayDateString();
+    let tasksToShow = [];
+
+    clients.forEach(c => {
+        c.tarefas.forEach((t, i) => {
+            const task = {...t, index: i, clientCode: c.codigo, clientName: c['nome-cliente']};
+            if (filterType === 'report' && t.due_date === today) tasksToShow.push(task);
+            else if (!t.concluida) {
+                if (filterType === 'overdue' && isTaskOverdue(t)) tasksToShow.push(task);
+                else if (filterType === 'today' && t.due_date === today && !isTaskOverdue(t)) tasksToShow.push(task);
+                else if (filterType === 'future' && t.due_date > today) tasksToShow.push(task);
+            }
+        });
+    });
+
+    // Mapeamento de nomes amigáveis para o título
+    const titles = { 'report': 'Relatório Diário', 'today': 'Tarefas de Hoje', 'overdue': 'Tarefas Atrasadas', 'future': 'Tarefas Futuras' };
+    title.textContent = titles[filterType] || 'Tarefas';
+
+    if (tasksToShow.length === 0) {
+        output.innerHTML = '<div class="alert alert-info">Nenhuma tarefa encontrada para este filtro.</div>';
+    } else {
+        tasksToShow.forEach(t => {
+            const div = document.createElement('div');
+            div.className = `p-3 mb-2 border rounded ${t.concluida ? 'completed-task' : (isTaskOverdue(t) ? 'overdue-task' : 'bg-white')}`;
+            div.innerHTML = `
+                <div class="mb-2">
+                    <span style="background-color: #FFFF00; font-weight: bold; padding: 2px 5px; border-radius: 3px;">
+                        ${t.clientCode} - ${t.clientName}
+                    </span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <div>${t.descricao}</div>
+                    <div class="small">${formatDateToBR(t.due_date)} ${t.hora_tarefa || ''}</div>
+                </div>
+                ${!t.concluida ? `<button class="btn btn-sm btn-success mt-2" onclick="concludeTaskInline('${t.clientCode}', ${t.index}, '${filterType}')">Concluir</button>` : ''}
+            `;
+            output.appendChild(div);
+        });
+    }
+
+    container.classList.remove('d-none');
+    // Scroll suave até o container
+    container.scrollIntoView({ behavior: 'smooth' });
+}
+
+function hideFixedTasks() {
+    document.getElementById('fixed-tasks-container').classList.add('d-none');
+}
+
+// Função de conclusão específica para a lista inline para atualizar a visão
+function concludeTaskInline(code, idx, filterType) {
+    const client = clients.find(c => c.codigo === code);
+    const action = () => {
+        client.tarefas[idx].concluida = true;
+        saveAllClients();
+        showFixedGlobalTasks(filterType); // Atualiza a lista fixa
+        showMessage("Sucesso", "Tarefa concluída!", "success");
+    };
+    showMessage("Confirmação", "Deseja marcar como concluída?", "info", action);
+}
+
+// Mantido para busca por data e cliques nos cards (Filtro específico do cliente via Modal)
 function showGlobalTasks(filterType, specificDate = null, specificClientCode = null) {
     const output = document.getElementById('global-tasks-output');
     const title = document.getElementById('globalTasksModalLabel');
@@ -219,7 +303,6 @@ function showGlobalTasks(filterType, specificDate = null, specificClientCode = n
     const today = getTodayDateString();
     let tasksToShow = [];
 
-    // Filtra clientes se for um código específico, senão percorre todos
     const clientsToSearch = specificClientCode 
         ? clients.filter(c => c.codigo === specificClientCode) 
         : clients;
@@ -243,8 +326,6 @@ function showGlobalTasks(filterType, specificDate = null, specificClientCode = n
         tasksToShow.forEach(t => {
             const div = document.createElement('div');
             div.className = `p-3 mb-2 border rounded ${t.concluida ? 'completed-task' : (isTaskOverdue(t) ? 'overdue-task' : 'bg-white')}`;
-            
-            // MODIFICADO: div.small agora exibe a data formatada em dd/mm/yyyy
             div.innerHTML = `
                 <div class="mb-2">
                     <span style="background-color: #FFFF00; font-weight: bold; padding: 2px 5px; border-radius: 3px;">
@@ -303,27 +384,21 @@ function updateCountdown(dataStr) {
 function updateOverdueAlert() {
     let count = 0;
     clients.forEach(c => count += c.tarefas.filter(t => !t.concluida && isTaskOverdue(t)).length);
-    document.getElementById('overdue-count').textContent = count;
+    const badge = document.getElementById('overdue-count');
+    if(badge) badge.textContent = count;
 }
 
 // --- Event Listeners ---
 
 function setupEventListeners() {
-    // IMPLEMENTAÇÃO: Validação do botão de busca direta
+    // Validação do botão de busca direta
     document.getElementById('search-btn-direct').onclick = () => {
         const query = document.getElementById('search-input').value.trim();
-        
-        // Se não houver informação no input
-        if (!query) {
-            return showMessage("Atenção", "Digite o código ou o nome do cliente desejado", "info");
-        }
+        if (!query) return showMessage("Atenção", "Digite o código ou o nome do cliente desejado", "info");
 
         const found = clients.find(c => c.codigo === query || c['nome-cliente'].toLowerCase().includes(query.toLowerCase()));
-        
-        if (found) {
-            // Se houver informação e encontrar, carrega a section
-            loadClientData(found);
-        } else {
+        if (found) loadClientData(found);
+        else {
             showMessage("Não encontrado", "Cliente não existe. Deseja cadastrar?", "warning", () => {
                 clearFormData(true);
                 clientDataModalInstance.show();
@@ -331,30 +406,16 @@ function setupEventListeners() {
         }
     };
 
-    // IMPLEMENTAÇÃO: Cliques nos cards de contagem de tarefas por tipo (Filtro específico do cliente)
+    // Cliques nos cards de contagem (Filtro específico do cliente)
     const counters = document.querySelectorAll('#client-task-counters .col-md-4 > div');
-    
-    // 1º Card (Atrasadas)
-    counters[0].onclick = () => {
-        if(currentClientCode) showGlobalTasks('overdue', null, currentClientCode);
-    };
-    
-    // 2º Card (Hoje)
-    counters[1].onclick = () => {
-        if(currentClientCode) showGlobalTasks('today', null, currentClientCode);
-    };
-    
-    // 3º Card (Futuras)
-    counters[2].onclick = () => {
-        if(currentClientCode) showGlobalTasks('future', null, currentClientCode);
-    };
+    if(counters.length > 0) {
+        counters[0].onclick = () => { if(currentClientCode) showGlobalTasks('overdue', null, currentClientCode); };
+        counters[1].onclick = () => { if(currentClientCode) showGlobalTasks('today', null, currentClientCode); };
+        counters[2].onclick = () => { if(currentClientCode) showGlobalTasks('future', null, currentClientCode); };
+    }
 
-    // Botões de ação dentro do Prazo-Container (Status)
-    document.getElementById('btn-resumo-status').onclick = () => {
-        if(currentClientCode) summaryModalInstance.show();
-    };
+    document.getElementById('btn-resumo-status').onclick = () => { if(currentClientCode) summaryModalInstance.show(); };
     
-    // IMPLEMENTAÇÃO: Limpar campos de data e hora ao clicar em Nova Tarefa
     document.getElementById('btn-tarefa-status').onclick = () => {
         if(currentClientCode) {
             document.getElementById('tarefa-due-date-input').value = '';
@@ -363,22 +424,21 @@ function setupEventListeners() {
         }
     };
 
-    document.getElementById('btn-edit-status').onclick = () => {
-        if(currentClientCode) clientDataModalInstance.show();
-    };
+    document.getElementById('btn-edit-status').onclick = () => { if(currentClientCode) clientDataModalInstance.show(); };
 
     document.getElementById('reset-client-btn').onclick = () => clearFormData();
     document.getElementById('new-client-btn').onclick = () => { clearFormData(true); clientDataModalInstance.show(); };
     document.getElementById('modal1-back-btn').onclick = () => { clientDataModalInstance.hide(); };
     document.getElementById('modal1-save-btn').onclick = () => saveOrUpdateClient();
+    document.getElementById('modal1-delete-btn').onclick = () => deleteCurrentClient(); // Implementado
     document.getElementById('modal2-save-btn').onclick = () => { if(saveOrUpdateClient()) summaryModalInstance.hide(); };
     document.getElementById('modal3-add-btn').onclick = () => addTarefa();
 
-    // Botões de Relatório Global
-    document.getElementById('show-report-btn').onclick = () => showGlobalTasks('report');
-    document.getElementById('show-today-tasks-btn').onclick = () => showGlobalTasks('today');
-    document.getElementById('show-overdue-tasks-btn').onclick = () => showGlobalTasks('overdue');
-    document.getElementById('show-future-tasks-btn').onclick = () => showGlobalTasks('future');
+    // IMPLEMENTAÇÃO: Botões de Relatório Global (Exibição fixa)
+    document.getElementById('show-report-btn').onclick = () => showFixedGlobalTasks('report');
+    document.getElementById('show-today-tasks-btn').onclick = () => showFixedGlobalTasks('today');
+    document.getElementById('show-overdue-tasks-btn').onclick = () => showFixedGlobalTasks('overdue');
+    document.getElementById('show-future-tasks-btn').onclick = () => showFixedGlobalTasks('future');
 
     document.getElementById('search-date-btn').onclick = () => {
         const d = document.getElementById('search-date-input').value;
