@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-bs-theme="auto">
 <head>
     <meta charset="UTF-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
@@ -10,7 +10,6 @@
 </head>
 
 <body>
-    
     <div class="client-list-sidebar">
         <h3 class="section-title">Clientes Cadastrados</h3>
         <p class="small text-muted mb-3">Gerencie os dados e tarefas dos clientes.</p>
@@ -19,13 +18,25 @@
         </div>
     </div>
 
-    <header class="custom-header text-white text-center">
-        <h1>📋 Gestão de Card de Cliente</h1> 
+    <header class="custom-header text-white text-center d-flex align-items-center justify-content-center">
+        <h1 class="mb-0">📋 Gestão de Card de Cliente</h1>
+        <div class="theme-switcher position-absolute end-0 me-4">
+            <div class="dropdown">
+                <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-circle-half"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><button class="dropdown-item" data-bs-theme-value="light"><i class="bi bi-sun-fill me-2"></i>Claro</button></li>
+                    <li><button class="dropdown-item" data-bs-theme-value="dark"><i class="bi bi-moon-stars-fill me-2"></i>Escuro</button></li>
+                    <li><button class="dropdown-item" data-bs-theme-value="auto"><i class="bi bi-display me-2"></i>Sistema</button></li>
+                </ul>
+            </div>
+        </div>
     </header>
 
     <main class="container main-content my-4">
         
-        <section id="search-container" class="card p-4 shadow-sm">
+        <section id="search-container" class="card p-4 shadow-sm mb-4">
             <h2 class="section-title">🔎 Buscar / Criar Cliente</h2>
             
             <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
@@ -59,7 +70,7 @@
             </div>
         </section>
 
-        <section id="fixed-tasks-container" class="card p-4 mt-4 shadow-sm d-none">
+        <section id="fixed-tasks-container" class="card p-4 mb-4 shadow-sm d-none">
             <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
                 <h2 class="section-title mb-0" id="fixed-tasks-title" style="border-bottom: none;">Tarefas</h2>
                 <button class="btn btn-sm btn-outline-secondary" onclick="hideFixedTasks()">
@@ -69,30 +80,30 @@
             <div id="fixed-tasks-output"></div>
         </section>
 
-        <section id="prazo-container" class="card p-4 mt-4 shadow-sm d-none">
+        <section id="prazo-container" class="card p-4 shadow-sm d-none">
             <h2 class="section-title">Status do Cliente</h2>
             
             <p id="current-client-info" class="fw-bold mt-2 text-primary">
                 Nenhum cliente carregado.
             </p>
 
-            <p id="countdown-message" class="mb-3 text-muted">Tempo para conclusão deste card: <span class="fw-bold text-dark">...</span></p>
+            <p id="countdown-message" class="mb-3 text-muted">Tempo para conclusão deste card: <span class="fw-bold">...</span></p>
             
             <div class="row g-2" id="client-task-counters">
-                <div class="col-md-4 text-center" style="cursor: pointer;">
-                    <div class="p-2 border rounded bg-light">
+                <div class="col-md-4 text-center">
+                    <div class="p-2 border rounded theme-card-bg">
                         <small class="fw-bold text-danger">ATRASADAS</small>
                         <div id="count-overdue" class="h4 mb-0">0</div>
                     </div>
                 </div>
-                <div class="col-md-4 text-center" style="cursor: pointer;">
-                    <div class="p-2 border rounded bg-light">
+                <div class="col-md-4 text-center">
+                    <div class="p-2 border rounded theme-card-bg">
                         <small class="fw-bold text-warning">HOJE</small>
                         <div id="count-today" class="h4 mb-0">0</div>
                     </div>
                 </div>
-                <div class="col-md-4 text-center" style="cursor: pointer;">
-                    <div class="p-2 border rounded bg-light">
+                <div class="col-md-4 text-center">
+                    <div class="p-2 border rounded theme-card-bg">
                         <small class="fw-bold text-primary">FUTURAS</small>
                         <div id="count-future" class="h4 mb-0">0</div>
                     </div>
@@ -117,8 +128,8 @@
     <div class="modal fade" id="client-data-modal" tabindex="-1" aria-labelledby="clientDataModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
-          <div class="modal-header bg-light">
-            <h5 class="modal-title section-title w-100" id="clientDataModalLabel">1. Dados do Cliente</h5>
+          <div class="modal-header">
+            <h5 class="modal-title section-title w-100 mb-0" id="clientDataModalLabel">1. Dados do Cliente</h5>
             <button type="button" class="btn-close" onclick="closeModal('client-data-modal')"></button>
           </div>
           <div class="modal-body">
@@ -163,9 +174,7 @@
             </form>
           </div>
           <div class="modal-footer d-flex justify-content-between">
-            <div>
-                <button type="button" id="modal1-delete-btn" class="btn btn-danger me-2"><i class="bi bi-trash"></i> Excluir Cliente</button>
-            </div>
+            <button type="button" id="modal1-delete-btn" class="btn btn-danger"><i class="bi bi-trash"></i> Excluir Cliente</button>
             <div>
                 <button type="button" id="modal1-back-btn" class="btn btn-secondary me-2"><i class="bi bi-arrow-left"></i> Voltar</button>
                 <button type="button" id="modal1-save-btn" class="btn btn-cobmais-success"><i class="bi bi-save"></i> Salvar Dados</button>
@@ -178,8 +187,8 @@
     <div class="modal fade" id="summary-modal" tabindex="-1" aria-labelledby="summaryModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg">
         <div class="modal-content">
-          <div class="modal-header bg-light">
-            <h5 class="modal-title section-title w-100" id="summaryModalLabel">2. Resumo após Reunião (Plano de Ação)</h5>
+          <div class="modal-header">
+            <h5 class="modal-title section-title w-100 mb-0" id="summaryModalLabel">2. Resumo / Plano de Ação</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
@@ -199,8 +208,8 @@
     <div class="modal fade" id="tasks-modal" tabindex="-1" aria-labelledby="tasksModalLabel" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
-          <div class="modal-header bg-light">
-            <h5 class="modal-title section-title w-100" id="tasksModalLabel">Cadastrar Nova Tarefa</h5>
+          <div class="modal-header">
+            <h5 class="modal-title section-title w-100 mb-0" id="tasksModalLabel">Cadastrar Nova Tarefa</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
@@ -208,25 +217,23 @@
                 <label for="nova-tarefa-input" class="form-label fw-bold">Descrição da Tarefa:</label>
                 <input type="text" id="nova-tarefa-input" class="form-control" placeholder="O que precisa ser feito?">
             </div>
-
-            <div class="row mb-3" id="create-date-time-wrapper">
+            <div class="row mb-3">
                 <div class="col-6">
-                    <label for="tarefa-create-date" class="form-label fw-bold"><i class="bi bi-calendar-plus"></i> Data Criação:</label>
+                    <label for="tarefa-create-date" class="form-label fw-bold">Data Criação:</label>
                     <input type="date" id="tarefa-create-date" class="form-control" readonly>
                 </div>
                 <div class="col-6">
-                    <label for="tarefa-create-time" class="form-label fw-bold"><i class="bi bi-clock-history"></i> Hora Criação:</label>
+                    <label for="tarefa-create-time" class="form-label fw-bold">Hora Criação:</label>
                     <input type="time" id="tarefa-create-time" class="form-control" readonly>
                 </div>
             </div>
-
             <div class="row mb-3">
                 <div class="col-6">
-                    <label for="tarefa-due-date-input" class="form-label fw-bold"><i class="bi bi-calendar-check"></i> Data Conclusão:</label>
+                    <label for="tarefa-due-date-input" class="form-label fw-bold">Data Conclusão:</label>
                     <input type="date" id="tarefa-due-date-input" class="form-control">
                 </div>
                 <div class="col-6">
-                    <label for="hora-tarefa-input" class="form-label fw-bold"><i class="bi bi-clock"></i> Hora Conclusão:</label>
+                    <label for="hora-tarefa-input" class="form-label fw-bold">Hora Conclusão:</label>
                     <input type="time" id="hora-tarefa-input" class="form-control">
                 </div>
             </div>
@@ -241,7 +248,7 @@
 
     <div class="modal fade" id="message-modal" tabindex="-1" style="z-index: 2000;">
         <div class="modal-dialog">
-            <div class="modal-content shadow-lg border-primary">
+            <div class="modal-content shadow-lg">
                 <div class="modal-header">
                     <h5 class="modal-title" id="messageModalLabel">Atenção</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -252,11 +259,11 @@
         </div>
     </div>
     
-    <div class="modal fade" id="global-tasks-modal" tabindex="-1" style="z-index: 1055;">
+    <div class="modal fade" id="global-tasks-modal" tabindex="-1">
       <div class="modal-dialog modal-xl">
         <div class="modal-content">
-          <div class="modal-header bg-light">
-            <h5 class="modal-title section-title w-100" id="globalTasksModalLabel">Filtro Global de Tarefas</h5>
+          <div class="modal-header">
+            <h5 class="modal-title section-title w-100 mb-0" id="globalTasksModalLabel">Filtro Global</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">

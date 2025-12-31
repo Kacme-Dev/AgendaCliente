@@ -1,105 +1,128 @@
-/* PALETA DE CORES COBMAIS */
+/* PALETA DE CORES COBMAIS HARMONIZADA */
 :root {
-    --color-primary: #1A5B8A;
+    --color-primary: #1E478E;
     --color-secondary: #0099CC;
-    --color-success: #63A948;
-    --color-warning: #FFC107;
-    --color-danger: #DC3545;
-    --color-light-bg: #0A1626;
+    --color-success: #28a745;
+    --color-warning: #ffc107;
+    --color-danger: #dc3545;
+    --bg-dark-sidebar: #1a1c1e;
+    --sidebar-width: 300px;
 }
 
+/* Ajustes Globais */
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: var(--color-light-bg);
-    color: #333;
-    min-height: 100vh;
-    padding-top: 70px; 
-    padding-left: 300px;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    padding-top: 80px; 
+    padding-left: var(--sidebar-width);
+    transition: background-color 0.3s ease;
 }
 
+/* Header Fixo */
 .custom-header {
-    background-color: #1E478E;
+    background-color: var(--color-primary);
     color: white;
     padding: 1rem 0;
     position: fixed;
     top: 0;
-    left: 300px;
+    left: var(--sidebar-width);
     right: 0;
     z-index: 1020;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-@media (max-width: 991px) {
-    body { padding-left: 20px; padding-top: 100px; }
-    .custom-header { left: 0; }
-    .client-list-sidebar { display: none; }
-}
-
-.main-content { max-width: 900px; }
-
-.section-title {
-    color: var(--color-primary);
-    border-bottom: 2px solid var(--color-secondary);
-    padding-bottom: 10px;
-    margin-top: 0;
-    margin-bottom: 20px;
-}
-
+/* Sidebar Estilizada */
 .client-list-sidebar {
     position: fixed;
     top: 0; left: 0; bottom: 0;
-    width: 300px;
-    background-color: #404142;
-    border-right: 1px solid #ddd;
+    width: var(--sidebar-width);
+    background-color: var(--bg-dark-sidebar);
+    color: #e0e0e0;
+    border-right: 1px solid rgba(255,255,255,0.1);
     padding: 20px;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
     z-index: 1000;
     overflow-y: auto;
 }
 
+.client-list-sidebar .section-title {
+    color: #ffffff;
+    border-color: var(--color-secondary);
+}
+
+/* Itens da Lista de Clientes */
 .client-list-item {
     padding: 12px;
     margin-bottom: 8px;
-    background-color: #f8f9fa; 
-    border: 1px solid #ddd;
+    background-color: rgba(255,255,255,0.05); 
+    border: 1px solid rgba(255,255,255,0.1);
     border-left: 5px solid var(--color-secondary);
-    border-radius: 4px;
-    transition: all 0.2s;
-}
-
-.client-list-item:hover { 
-    background-color: #e8e8e8; 
+    border-radius: 6px;
+    transition: all 0.2s ease;
     cursor: pointer;
 }
 
+.client-list-item:hover { 
+    background-color: rgba(255,255,255,0.15);
+    transform: translateX(5px);
+}
+
+/* Cards de Tarefas */
+.task-card {
+    transition: transform 0.2s;
+}
+.task-card:hover { transform: scale(1.01); }
+
 .completed-task {
     text-decoration: line-through;
-    opacity: 0.7;
-    background-color: #e6f7df !important;
+    opacity: 0.6;
+    background-color: #d4edda !important;
     border-left: 5px solid var(--color-success) !important;
+    color: #155724 !important;
 }
 
 .overdue-task {
     background-color: #f8d7da !important;
     border-left: 5px solid var(--color-danger) !important;
+    color: #721c24 !important;
 }
 
-.today-task {
-    background-color: #fff3cd !important;
-    border-left: 5px solid var(--color-warning) !important;
+/* Helpers de Tema */
+[data-bs-theme="dark"] .theme-card-bg { background-color: #2b3035; }
+[data-bs-theme="light"] .theme-card-bg { background-color: #f8f9fa; }
+
+/* Títulos de Seção */
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    border-bottom: 2px solid var(--color-secondary);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
 }
 
-.btn-overdue-alert {
-    animation: pulse-red 1s infinite;
-    background-color: var(--color-danger) !important;
-    border-color: var(--color-danger) !important;
-    color: white !important;
+[data-bs-theme="dark"] .section-title {
+    color: var(--color-secondary);
+}
+
+/* Botões Customizados */
+.btn-cobmais-primary { background-color: var(--color-primary); border-color: var(--color-primary); color: white; }
+.btn-cobmais-primary:hover { background-color: #153569; color: white; }
+
+.btn-cobmais-success { background-color: var(--color-success); border-color: var(--color-success); color: white; }
+
+/* Responsividade */
+@media (max-width: 991px) {
+    body { padding-left: 0; padding-top: 100px; }
+    .custom-header { left: 0; }
+    .client-list-sidebar { display: none; }
+}
+
+/* Animação para o Contador de Atrasos */
+#overdue-count:not(:empty):not(:contains("0")) {
+    animation: pulse-red 2s infinite;
 }
 
 @keyframes pulse-red {
-    0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4); }
-    70% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
 }
-
-.btn-cobmais-primary { background-color: var(--color-primary); border-color: var(--color-primary); color: white; }
-.btn-cobmais-success { background-color: var(--color-success); border-color: var(--color-success); color: white; }

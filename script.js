@@ -33,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
     showClientListSidebar();
     updateOverdueAlert();
+    initTheme(); // Inicializa o seletor de modo claro/escuro
 });
 
 // --- Utilidades ---
@@ -46,7 +47,6 @@ function getCurrentTimeString() {
     return String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
 }
 
-// Função para formatar data de YYYY-MM-DD para DD/MM/YYYY
 function formatDateToBR(dateStr) {
     if (!dateStr) return '';
     const parts = dateStr.split('-');
@@ -108,7 +108,6 @@ function saveAllClients() {
     localStorage.setItem(CLIENTS_ARRAY_KEY, JSON.stringify(clients));
     showClientListSidebar();
     updateOverdueAlert();
-    // Se houver um cliente carregado, atualiza o contador dele
     if (currentClientCode) {
         const client = clients.find(c => c.codigo === currentClientCode);
         if (client) updateCountdown(client['data-inicio']);
@@ -127,7 +126,7 @@ function showClientListSidebar() {
         const div = document.createElement('div');
         div.className = 'client-list-item';
         div.innerHTML = `
-            <div class="cursor-pointer" onclick="loadClientDataByCode('${client.codigo}')">
+            <div onclick="loadClientDataByCode('${client.codigo}')">
                 <strong>${client.codigo}</strong> - ${client['nome-cliente']}
             </div>
         `;
@@ -187,7 +186,7 @@ function saveOrUpdateClient() {
     return true;
 }
 
-// IMPLEMENTAÇÃO: Excluir cliente por completo
+// CORREÇÃO SOLICITADA: Excluir cliente por completo
 function deleteCurrentClient() {
     if (!currentClientCode) return;
     
@@ -196,10 +195,10 @@ function deleteCurrentClient() {
         saveAllClients();
         clearFormData();
         clientDataModalInstance.hide();
-        showMessage("Excluído", "Cliente removido com sucesso.", "success");
+        showMessage("Excluído", "Cliente e suas tarefas removidos com sucesso.", "success");
     };
 
-    showMessage("Confirmação", "Tem certeza que deseja excluir permanentemente este cliente e todas as suas tarefas?", "danger", action);
+    showMessage("Confirmação", "Deseja excluir permanentemente este cliente?", "danger", action);
 }
 
 // --- Tarefas ---
@@ -226,8 +225,11 @@ function addTarefa() {
     }
 }
 
-// IMPLEMENTAÇÃO: Mostrar tarefas abaixo do container de busca (fixo)
+// IMPLEMENTAÇÃO SOLICITADA: Mostrar tarefas abaixo do container de busca (fixo)
 function showFixedGlobalTasks(filterType) {
+    // Fecha o modal caso esteja aberto para não sobrepor
+    globalTasksModalInstance.hide();
+
     const container = document.getElementById('fixed-tasks-container');
     const output = document.getElementById('fixed-tasks-output');
     const title = document.getElementById('fixed-tasks-title');
@@ -248,25 +250,24 @@ function showFixedGlobalTasks(filterType) {
         });
     });
 
-    // Mapeamento de nomes amigáveis para o título
-    const titles = { 'report': 'Relatório Diário', 'today': 'Tarefas de Hoje', 'overdue': 'Tarefas Atrasadas', 'future': 'Tarefas Futuras' };
+    const titles = { 'report': '📊 Relatório Diário', 'today': '🔔 Tarefas de Hoje', 'overdue': '⚠️ Tarefas Atrasadas', 'future': '📅 Tarefas Futuras' };
     title.textContent = titles[filterType] || 'Tarefas';
 
     if (tasksToShow.length === 0) {
-        output.innerHTML = '<div class="alert alert-info">Nenhuma tarefa encontrada para este filtro.</div>';
+        output.innerHTML = '<div class="alert alert-info">Nenhuma tarefa pendente para este filtro.</div>';
     } else {
         tasksToShow.forEach(t => {
             const div = document.createElement('div');
-            div.className = `p-3 mb-2 border rounded ${t.concluida ? 'completed-task' : (isTaskOverdue(t) ? 'overdue-task' : 'bg-white')}`;
+            div.className = `p-3 mb-2 border rounded task-card ${t.concluida ? 'completed-task' : (isTaskOverdue(t) ? 'overdue-task' : 'bg-body-tertiary')}`;
             div.innerHTML = `
                 <div class="mb-2">
-                    <span style="background-color: #FFFF00; font-weight: bold; padding: 2px 5px; border-radius: 3px;">
+                    <span class="badge text-dark bg-warning">
                         ${t.clientCode} - ${t.clientName}
                     </span>
                 </div>
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between align-items-center">
                     <div>${t.descricao}</div>
-                    <div class="small">${formatDateToBR(t.due_date)} ${t.hora_tarefa || ''}</div>
+                    <div class="small fw-bold">${formatDateToBR(t.due_date)} ${t.hora_tarefa || ''}</div>
                 </div>
                 ${!t.concluida ? `<button class="btn btn-sm btn-success mt-2" onclick="concludeTaskInline('${t.clientCode}', ${t.index}, '${filterType}')">Concluir</button>` : ''}
             `;
@@ -275,7 +276,6 @@ function showFixedGlobalTasks(filterType) {
     }
 
     container.classList.remove('d-none');
-    // Scroll suave até o container
     container.scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -283,19 +283,18 @@ function hideFixedTasks() {
     document.getElementById('fixed-tasks-container').classList.add('d-none');
 }
 
-// Função de conclusão específica para a lista inline para atualizar a visão
 function concludeTaskInline(code, idx, filterType) {
     const client = clients.find(c => c.codigo === code);
     const action = () => {
         client.tarefas[idx].concluida = true;
         saveAllClients();
-        showFixedGlobalTasks(filterType); // Atualiza a lista fixa
+        showFixedGlobalTasks(filterType); 
         showMessage("Sucesso", "Tarefa concluída!", "success");
     };
-    showMessage("Confirmação", "Deseja marcar como concluída?", "info", action);
+    showMessage("Confirmação", "Marcar como concluída?", "info", action);
 }
 
-// Mantido para busca por data e cliques nos cards (Filtro específico do cliente via Modal)
+// Mantido para busca por data
 function showGlobalTasks(filterType, specificDate = null, specificClientCode = null) {
     const output = document.getElementById('global-tasks-output');
     const title = document.getElementById('globalTasksModalLabel');
@@ -325,12 +324,10 @@ function showGlobalTasks(filterType, specificDate = null, specificClientCode = n
     else {
         tasksToShow.forEach(t => {
             const div = document.createElement('div');
-            div.className = `p-3 mb-2 border rounded ${t.concluida ? 'completed-task' : (isTaskOverdue(t) ? 'overdue-task' : 'bg-white')}`;
+            div.className = `p-3 mb-2 border rounded ${t.concluida ? 'completed-task' : (isTaskOverdue(t) ? 'overdue-task' : 'bg-body-tertiary')}`;
             div.innerHTML = `
                 <div class="mb-2">
-                    <span style="background-color: #FFFF00; font-weight: bold; padding: 2px 5px; border-radius: 3px;">
-                        ${t.clientCode} - ${t.clientName}
-                    </span>
+                    <span class="badge text-dark bg-warning">${t.clientCode} - ${t.clientName}</span>
                 </div>
                 <div class="d-flex justify-content-between">
                     <div>${t.descricao}</div>
@@ -352,7 +349,7 @@ function concludeTask(code, idx) {
         globalTasksModalInstance.hide();
         showMessage("Sucesso", "Tarefa concluída!", "success");
     };
-    showMessage("Confirmação", "Deseja marcar como concluída?", "info", action);
+    showMessage("Confirmação", "Marcar como concluída?", "info", action);
 }
 
 // --- UI Contadores ---
@@ -388,10 +385,39 @@ function updateOverdueAlert() {
     if(badge) badge.textContent = count;
 }
 
+// IMPLEMENTAÇÃO: Lógica de Temas (Claro, Escuro, Auto)
+function initTheme() {
+    const getStoredTheme = () => localStorage.getItem('theme');
+    const setStoredTheme = theme => localStorage.setItem('theme', theme);
+
+    const getPreferredTheme = () => {
+        const storedTheme = getStoredTheme();
+        if (storedTheme) return storedTheme;
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    };
+
+    const setTheme = theme => {
+        if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.setAttribute('data-bs-theme', 'dark');
+        } else {
+            document.documentElement.setAttribute('data-bs-theme', theme);
+        }
+    };
+
+    setTheme(getPreferredTheme());
+
+    document.querySelectorAll('[data-bs-theme-value]').forEach(toggle => {
+        toggle.addEventListener('click', () => {
+            const theme = toggle.getAttribute('data-bs-theme-value');
+            setStoredTheme(theme);
+            setTheme(theme);
+        });
+    });
+}
+
 // --- Event Listeners ---
 
 function setupEventListeners() {
-    // Validação do botão de busca direta
     document.getElementById('search-btn-direct').onclick = () => {
         const query = document.getElementById('search-input').value.trim();
         if (!query) return showMessage("Atenção", "Digite o código ou o nome do cliente desejado", "info");
@@ -406,8 +432,7 @@ function setupEventListeners() {
         }
     };
 
-    // Cliques nos cards de contagem (Filtro específico do cliente)
-    const counters = document.querySelectorAll('#client-task-counters .col-md-4 > div');
+    const counters = document.querySelectorAll('#client-task-counters .col-md-4');
     if(counters.length > 0) {
         counters[0].onclick = () => { if(currentClientCode) showGlobalTasks('overdue', null, currentClientCode); };
         counters[1].onclick = () => { if(currentClientCode) showGlobalTasks('today', null, currentClientCode); };
@@ -415,7 +440,6 @@ function setupEventListeners() {
     }
 
     document.getElementById('btn-resumo-status').onclick = () => { if(currentClientCode) summaryModalInstance.show(); };
-    
     document.getElementById('btn-tarefa-status').onclick = () => {
         if(currentClientCode) {
             document.getElementById('tarefa-due-date-input').value = '';
@@ -423,18 +447,17 @@ function setupEventListeners() {
             tasksModalInstance.show();
         }
     };
-
     document.getElementById('btn-edit-status').onclick = () => { if(currentClientCode) clientDataModalInstance.show(); };
 
     document.getElementById('reset-client-btn').onclick = () => clearFormData();
     document.getElementById('new-client-btn').onclick = () => { clearFormData(true); clientDataModalInstance.show(); };
     document.getElementById('modal1-back-btn').onclick = () => { clientDataModalInstance.hide(); };
     document.getElementById('modal1-save-btn').onclick = () => saveOrUpdateClient();
-    document.getElementById('modal1-delete-btn').onclick = () => deleteCurrentClient(); // Implementado
+    document.getElementById('modal1-delete-btn').onclick = () => deleteCurrentClient(); 
     document.getElementById('modal2-save-btn').onclick = () => { if(saveOrUpdateClient()) summaryModalInstance.hide(); };
     document.getElementById('modal3-add-btn').onclick = () => addTarefa();
 
-    // IMPLEMENTAÇÃO: Botões de Relatório Global (Exibição fixa)
+    // IMPLEMENTAÇÃO: Botões de Relatório Global Fixos
     document.getElementById('show-report-btn').onclick = () => showFixedGlobalTasks('report');
     document.getElementById('show-today-tasks-btn').onclick = () => showFixedGlobalTasks('today');
     document.getElementById('show-overdue-tasks-btn').onclick = () => showFixedGlobalTasks('overdue');
