@@ -36,10 +36,6 @@ body {
     margin-bottom: 2rem;
 }
 
-/*.card{
-    background-color: #f1f1f1;
-}*/
-
 @media (max-width: 991px) {
     body { padding-left: 20px; padding-top: 100px; }
     .custom-header { left: 0; }
@@ -168,4 +164,5 @@ body {
     font-size: 1.1rem;
     letter-spacing: 0.5px;
 }
+
 
