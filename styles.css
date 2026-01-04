@@ -29,7 +29,7 @@ body {
 }
 
 .card {
-    background-color: #ffffff;
+    background-color: #f1f1f1;
     border: none;
     border-radius: 16px; /* Bordas mais modernas */
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Sombra para destacar do fundo escuro */
@@ -168,3 +168,4 @@ body {
     font-size: 1.1rem;
     letter-spacing: 0.5px;
 }
+
