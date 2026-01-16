@@ -213,6 +213,9 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
+            <input type="hidden" id="edit-task-index" value="">
+            <input type="hidden" id="edit-task-client-code" value="">
+
             <div class="mb-3">
                 <label for="nova-tarefa-input" class="form-label fw-bold">Descrição da Tarefa:</label>
                 <input type="text" id="nova-tarefa-input" class="form-control" placeholder="O que precisa ser feito?">
@@ -240,7 +243,7 @@
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-            <button type="button" id="modal3-add-btn" class="btn btn-cobmais-success" disabled><i class="bi bi-plus-circle"></i> Adicionar Tarefa</button>
+            <button type="button" id="modal3-save-btn" class="btn btn-cobmais-success"><i class="bi bi-save"></i> Salvar Tarefa</button>
           </div>
         </div>
       </div>
@@ -279,5 +282,4 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="./script.js"></script> 
 </body>
-
 </html>

@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
     showClientListSidebar();
     updateOverdueAlert();
-    initTheme(); // Inicializa o seletor de modo claro/escuro
+    initTheme(); 
 });
 
 // --- Utilidades ---
@@ -152,7 +152,6 @@ function loadClientData(client) {
     });
     
     document.getElementById('plano-acao').value = client['plano-acao'] || '';
-    document.getElementById('modal3-add-btn').disabled = false;
     updateCountdown(client['data-inicio']);
 }
 
@@ -163,6 +162,7 @@ function clearFormData(isNew = false) {
     document.getElementById('plano-acao').value = '';
     document.getElementById('current-client-info').textContent = isNew ? 'Pronto para novo cadastro.' : 'Nenhum cliente carregado.';
     document.getElementById('prazo-container').classList.add('d-none');
+    hideFixedTasks();
 }
 
 function saveOrUpdateClient() {
@@ -186,10 +186,8 @@ function saveOrUpdateClient() {
     return true;
 }
 
-// CORREÇÃO SOLICITADA: Excluir cliente por completo
 function deleteCurrentClient() {
     if (!currentClientCode) return;
-    
     const action = () => {
         clients = clients.filter(c => c.codigo !== currentClientCode);
         saveAllClients();
@@ -197,42 +195,90 @@ function deleteCurrentClient() {
         clientDataModalInstance.hide();
         showMessage("Excluído", "Cliente e suas tarefas removidos com sucesso.", "success");
     };
-
     showMessage("Confirmação", "Deseja excluir permanentemente este cliente?", "danger", action);
 }
 
-// --- Tarefas ---
+// --- Tarefas (Lógica de Salvar/Editar) ---
 
-function addTarefa() {
+/**
+ * IMPLEMENTAÇÃO: Salva ou Edita uma tarefa
+ */
+function saveTarefa() {
     const desc = document.getElementById('nova-tarefa-input').value.trim();
     const due = document.getElementById('tarefa-due-date-input').value;
     const time = document.getElementById('hora-tarefa-input').value;
     const cDate = document.getElementById('tarefa-create-date').value;
     const cTime = document.getElementById('tarefa-create-time').value;
+    
+    const editIdx = document.getElementById('edit-task-index').value;
+    const targetCode = document.getElementById('edit-task-client-code').value || currentClientCode;
 
     if (!desc) return showMessage("Erro", "Descrição é obrigatória.", "danger");
 
-    const client = clients.find(c => c.codigo === currentClientCode);
+    const client = clients.find(c => c.codigo === targetCode);
     if (client) {
-        client.tarefas.push({
-            descricao: desc, concluida: false, due_date: due, hora_tarefa: time,
-            created_date: cDate, created_time: cTime
-        });
+        const taskData = {
+            descricao: desc, 
+            concluida: false, 
+            due_date: due, 
+            hora_tarefa: time,
+            created_date: cDate, 
+            created_time: cTime
+        };
+
+        if (editIdx !== "") {
+            // Modo Edição: Mantém o status de concluída original se necessário
+            taskData.concluida = client.tarefas[editIdx].concluida;
+            client.tarefas[editIdx] = taskData;
+        } else {
+            // Modo Novo
+            client.tarefas.push(taskData);
+        }
+
         saveAllClients();
-        document.getElementById('nova-tarefa-input').value = '';
         tasksModalInstance.hide();
-        showMessage("Sucesso", "Tarefa adicionada!", "success");
+        
+        // Se houver uma lista fixa aberta, atualiza ela
+        const container = document.getElementById('fixed-tasks-container');
+        if(!container.classList.contains('d-none')) {
+            const currentFilter = document.getElementById('fixed-tasks-title').getAttribute('data-current-filter');
+            showFixedGlobalTasks(currentFilter);
+        }
+
+        showMessage("Sucesso", "Tarefa salva!", "success");
     }
 }
 
-// IMPLEMENTAÇÃO SOLICITADA: Mostrar tarefas abaixo do container de busca (fixo)
+/**
+ * IMPLEMENTAÇÃO: Abre o modal para edição de uma tarefa existente
+ */
+function editTaskInline(clientCode, taskIndex) {
+    const client = clients.find(c => c.codigo === clientCode);
+    if (!client || !client.tarefas[taskIndex]) return;
+
+    const t = client.tarefas[taskIndex];
+    
+    // Preenche o modal com os dados
+    document.getElementById('tasksModalLabel').textContent = "Editar Tarefa";
+    document.getElementById('nova-tarefa-input').value = t.descricao;
+    document.getElementById('tarefa-due-date-input').value = t.due_date;
+    document.getElementById('hora-tarefa-input').value = t.hora_tarefa;
+    document.getElementById('tarefa-create-date').value = t.created_date;
+    document.getElementById('tarefa-create-time').value = t.created_time;
+    
+    // Seta IDs de controle
+    document.getElementById('edit-task-index').value = taskIndex;
+    document.getElementById('edit-task-client-code').value = clientCode;
+
+    tasksModalInstance.show();
+}
+
 function showFixedGlobalTasks(filterType) {
-    // Fecha o modal caso esteja aberto para não sobrepor
     globalTasksModalInstance.hide();
 
     const container = document.getElementById('fixed-tasks-container');
     const output = document.getElementById('fixed-tasks-output');
-    const title = document.getElementById('fixed-tasks-title');
+    const titleEl = document.getElementById('fixed-tasks-title');
     
     output.innerHTML = '';
     const today = getTodayDateString();
@@ -251,19 +297,24 @@ function showFixedGlobalTasks(filterType) {
     });
 
     const titles = { 'report': '📊 Relatório Diário', 'today': '🔔 Tarefas de Hoje', 'overdue': '⚠️ Tarefas Atrasadas', 'future': '📅 Tarefas Futuras' };
-    title.textContent = titles[filterType] || 'Tarefas';
+    titleEl.textContent = titles[filterType] || 'Tarefas';
+    titleEl.setAttribute('data-current-filter', filterType); // Para atualizar a lista após editar
 
     if (tasksToShow.length === 0) {
         output.innerHTML = '<div class="alert alert-info">Nenhuma tarefa pendente para este filtro.</div>';
     } else {
         tasksToShow.forEach(t => {
             const div = document.createElement('div');
+            // IMPLEMENTAÇÃO: div.p-3 com botão editar
             div.className = `p-3 mb-2 border rounded task-card ${t.concluida ? 'completed-task' : (isTaskOverdue(t) ? 'overdue-task' : 'bg-body-tertiary')}`;
             div.innerHTML = `
-                <div class="mb-2">
+                <div class="d-flex justify-content-between align-items-start mb-2">
                     <span class="badge text-dark bg-warning">
                         ${t.clientCode} - ${t.clientName}
                     </span>
+                    <button class="btn btn-sm btn-outline-primary" onclick="editTaskInline('${t.clientCode}', ${t.index})">
+                        <i class="bi bi-pencil"></i> Editar
+                    </button>
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
                     <div>${t.descricao}</div>
@@ -326,8 +377,9 @@ function showGlobalTasks(filterType, specificDate = null, specificClientCode = n
             const div = document.createElement('div');
             div.className = `p-3 mb-2 border rounded ${t.concluida ? 'completed-task' : (isTaskOverdue(t) ? 'overdue-task' : 'bg-body-tertiary')}`;
             div.innerHTML = `
-                <div class="mb-2">
+                <div class="d-flex justify-content-between align-items-center mb-2">
                     <span class="badge text-dark bg-warning">${t.clientCode} - ${t.clientName}</span>
+                    <button class="btn btn-sm btn-outline-primary" onclick="editTaskInline('${t.clientCode}', ${t.index})">Editar</button>
                 </div>
                 <div class="d-flex justify-content-between">
                     <div>${t.descricao}</div>
@@ -385,7 +437,6 @@ function updateOverdueAlert() {
     if(badge) badge.textContent = count;
 }
 
-// IMPLEMENTAÇÃO: Lógica de Temas (Claro, Escuro, Auto)
 function initTheme() {
     const getStoredTheme = () => localStorage.getItem('theme');
     const setStoredTheme = theme => localStorage.setItem('theme', theme);
@@ -440,13 +491,21 @@ function setupEventListeners() {
     }
 
     document.getElementById('btn-resumo-status').onclick = () => { if(currentClientCode) summaryModalInstance.show(); };
+    
     document.getElementById('btn-tarefa-status').onclick = () => {
         if(currentClientCode) {
+            // Reseta IDs de edição para modo "Novo"
+            document.getElementById('edit-task-index').value = "";
+            document.getElementById('edit-task-client-code').value = "";
+            document.getElementById('tasksModalLabel').textContent = "Cadastrar Nova Tarefa";
+            
+            document.getElementById('nova-tarefa-input').value = '';
             document.getElementById('tarefa-due-date-input').value = '';
             document.getElementById('hora-tarefa-input').value = '';
             tasksModalInstance.show();
         }
     };
+
     document.getElementById('btn-edit-status').onclick = () => { if(currentClientCode) clientDataModalInstance.show(); };
 
     document.getElementById('reset-client-btn').onclick = () => clearFormData();
@@ -455,9 +514,10 @@ function setupEventListeners() {
     document.getElementById('modal1-save-btn').onclick = () => saveOrUpdateClient();
     document.getElementById('modal1-delete-btn').onclick = () => deleteCurrentClient(); 
     document.getElementById('modal2-save-btn').onclick = () => { if(saveOrUpdateClient()) summaryModalInstance.hide(); };
-    document.getElementById('modal3-add-btn').onclick = () => addTarefa();
+    
+    // Altera para a nova função que trata edição
+    document.getElementById('modal3-save-btn').onclick = () => saveTarefa();
 
-    // IMPLEMENTAÇÃO: Botões de Relatório Global Fixos
     document.getElementById('show-report-btn').onclick = () => showFixedGlobalTasks('report');
     document.getElementById('show-today-tasks-btn').onclick = () => showFixedGlobalTasks('today');
     document.getElementById('show-overdue-tasks-btn').onclick = () => showFixedGlobalTasks('overdue');
@@ -469,7 +529,10 @@ function setupEventListeners() {
     };
 
     document.getElementById('tasks-modal').addEventListener('show.bs.modal', () => {
-        document.getElementById('tarefa-create-date').value = getTodayDateString();
-        document.getElementById('tarefa-create-time').value = getCurrentTimeString();
+        // Só preenche data/hora de criação se for uma nova tarefa
+        if (document.getElementById('edit-task-index').value === "") {
+            document.getElementById('tarefa-create-date').value = getTodayDateString();
+            document.getElementById('tarefa-create-time').value = getCurrentTimeString();
+        }
     });
 }
