@@ -1,24 +1,69 @@
-/* PALETA DE CORES COBMAIS */
+/**
+ * ========================================
+ * SISTEMA DE GESTÃO DE CLIENTES - STYLES
+ * ========================================
+ * Paleta de cores escura com acentos vibrantes
+ * Design moderno e responsivo
+ */
+
+/* ========================================
+   PALETA DE CORES CUSTOMIZADA
+   ======================================== */
 :root {
+    /* Cores Primárias */
     --color-primary: #1A5B8A;
+    --color-primary-hover: #2271a8;
     --color-secondary: #0099CC;
     --color-success: #63A948;
     --color-warning: #FFC107;
     --color-danger: #DC3545;
-    --color-light-bg: #0A1626;
+    --color-info: #17A2B8;
+    
+    /* Backgrounds Escuros */
+    --color-bg-dark: #0A1626;
+    --color-bg-darker: #060f1a;
+    --color-sidebar-bg: #1a222d;
+    --color-card-bg: #f8f9fa;
+    
+    /* Textos */
+    --color-text-light: #ffffff;
+    --color-text-muted: #adb5bd;
+    
+    /* Bordas e Sombras */
+    --color-border: #dee2e6;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+    --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.25);
+    --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.35);
+    
+    /* Transições */
+    --transition-fast: 0.2s ease;
+    --transition-normal: 0.3s ease;
+}
+
+/* ========================================
+   RESET E BASE
+   ======================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body {
-    font-family: 'Arial', sans-serif;
-    background-color: var(--color-light-bg);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--color-bg-dark);
     color: #333;
     min-height: 100vh;
-    padding-top: 70px; 
+    padding-top: 70px;
     padding-left: 300px;
+    transition: background-color var(--transition-normal);
 }
 
+/* ========================================
+   HEADER
+   ======================================== */
 .custom-header {
-    background-color: #1E478E;
+    background: linear-gradient(135deg, #1E478E 0%, #2271a8 100%);
     color: white;
     padding: 1rem 0;
     position: fixed;
@@ -26,126 +71,558 @@ body {
     left: 300px;
     right: 0;
     z-index: 1020;
+    box-shadow: var(--shadow-md);
+}
+
+.custom-header h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.theme-switcher .btn {
+    border-radius: 8px;
+    transition: all var(--transition-fast);
+}
+
+.theme-switcher .btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+/* ========================================
+   SIDEBAR
+   ======================================== */
+.client-list-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 300px;
+    background: linear-gradient(180deg, var(--color-sidebar-bg) 0%, var(--color-bg-darker) 100%);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    overflow-y: auto;
+    padding: 24px 16px;
+    color: var(--color-text-light);
+}
+
+.client-list-sidebar::-webkit-scrollbar {
+    width: 8px;
+}
+
+.client-list-sidebar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.client-list-sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.client-list-sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.client-list-item {
+    padding: 14px 12px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 4px solid var(--color-warning);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    transition: all var(--transition-fast);
+    cursor: pointer;
+}
+
+.client-list-item:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-left-color: var(--color-primary);
+    transform: translateX(5px);
+}
+
+.client-list-item strong {
+    color: var(--color-warning);
+    font-size: 0.95rem;
+}
+
+/* ========================================
+   MAIN CONTENT
+   ======================================== */
+.main-content {
+    max-width: 900px;
 }
 
 .card {
-    background-color: #f1f1f1;
+    background-color: var(--color-card-bg);
     border: none;
-    border-radius: 16px; 
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); 
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
     margin-bottom: 2rem;
+    transition: all var(--transition-normal);
 }
 
-@media (max-width: 991px) {
-    body { padding-left: 20px; padding-top: 100px; }
-    .custom-header { left: 0; }
-    .client-list-sidebar { display: none; }
+.card:hover {
+    box-shadow: var(--shadow-lg);
 }
-
-.main-content { max-width: 900px; }
 
 .section-title {
     color: var(--color-primary);
-    border-bottom: 1px solid #eee;
+    border-bottom: 2px solid var(--color-primary);
     padding-bottom: 10px;
     margin-top: 0;
-    font-size: 1.1rem;
-    font-weight: bold;
+    font-size: 1.2rem;
+    font-weight: 700;
     margin-bottom: 20px;
     letter-spacing: 0.5px;
 }
 
-.client-list-sidebar {
-    position: fixed;
-    top: 0; left: 0; bottom: 0;
-    width: 300px;
-    border-right: 1px solid #ddd;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
-    z-index: 1000;
-    overflow-y: auto;
-    background-color: #1a222d; 
-    padding: 24px 16px;
-    color: #ffffff;
+/* Ajuste de visibilidade para títulos em modo escuro */
+[data-bs-theme="dark"] .section-title {
+    color: var(--color-secondary);
+    border-bottom-color: var(--color-secondary);
 }
 
-.client-list-item {
-    padding: 12px;
-    margin-bottom: 8px;
-    border: 1px solid #ddd;
-    border-left: 5px solid var(--color-warning);
-    background: rgba(255, 255, 255, 0.05); 
-    border-radius: 8px;  
-    margin-top: 10px;
-    transition: background 0.3s;
-    cursor: pointer;
+/* ========================================
+   FORMULÁRIOS E INPUTS
+   ======================================== */
+.form-control {
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 14px;
+    transition: all var(--transition-fast);
 }
 
-.client-list-item:hover { 
-    background: rgba(255, 255, 255, 0.15);
+.form-control:focus {
+    box-shadow: 0 0 0 4px rgba(26, 91, 138, 0.15);
+    border-color: var(--color-primary);
+    outline: none;
 }
 
-.task-card {
-    position: relative;
-    transition: transform 0.2s;
+.form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
 }
 
-.task-card:hover {
-    transform: scale(1.01);
+textarea.form-control {
+    resize: vertical;
+    min-height: 100px;
 }
 
-.completed-task {
-    text-decoration: line-through;
-    opacity: 0.7;
-    background-color: #e6f7df !important;
-    border-left: 5px solid var(--color-success) !important;
-}
-
-.overdue-task {
-    background-color: #f8d7da !important;
-    border-left: 5px solid var(--color-danger) !important;
-}
-
-.today-task {
-    background-color: #fff3cd !important;
-    border-left: 5px solid var(--color-warning) !important;
-}
-
-.btn-cobmais-primary { background-color: var(--color-primary); border-color: var(--color-primary); color: white; }
-.btn-cobmais-success { background-color: var(--color-success); border-color: var(--color-success); color: white; }
-
-#search-container .btn-sm {
+/* ========================================
+   BOTÕES
+   ======================================== */
+.btn {
     border-radius: 8px;
     padding: 8px 16px;
     font-weight: 600;
     text-transform: uppercase;
-    font-size: 11px;
+    font-size: 0.85rem;
     border: none;
-    transition: all 0.3s ease;
+    transition: all var(--transition-fast);
+    letter-spacing: 0.3px;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+/* Botões Customizados */
+.btn-cobmais-primary {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+.btn-cobmais-primary:hover {
+    background: linear-gradient(135deg, var(--color-primary-hover) 0%, var(--color-primary) 100%);
+    color: white;
+}
+
+.btn-cobmais-success {
+    background: linear-gradient(135deg, var(--color-success) 0%, #76c158 100%);
+    border-color: var(--color-success);
+    color: white;
+}
+
+.btn-cobmais-success:hover {
+    background: linear-gradient(135deg, #76c158 0%, var(--color-success) 100%);
+    color: white;
+}
+
+/* Botões de Filtro */
+#search-container .btn-sm {
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
 }
 
 #show-overdue-tasks-btn {
     background-color: rgba(220, 53, 69, 0.1) !important;
-    color: #dc3545 !important;
+    color: var(--color-danger) !important;
+    border: 2px solid var(--color-danger);
 }
+
 #show-overdue-tasks-btn:hover {
-    background-color: #dc3545 !important;
+    background-color: var(--color-danger) !important;
     color: white !important;
 }
 
-.form-control {
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 10px 12px;
+#show-today-tasks-btn {
+    background-color: var(--color-warning) !important;
+    color: #000 !important;
 }
 
-.form-control:focus {
-    box-shadow: 0 0 0 3px rgba(26, 91, 138, 0.2);
-    border-color: var(--color-primary);
+#show-today-tasks-btn:hover {
+    background-color: #e0a800 !important;
 }
 
-.btn-outline-primary
-{
+#show-report-btn {
+    background-color: var(--color-info) !important;
+    color: #000 !important;
+}
+
+#show-report-btn:hover {
+    background-color: #138496 !important;
+    color: white !important;
+}
+
+#show-future-tasks-btn {
+    background-color: #6c757d !important;
+    color: white !important;
+}
+
+#show-future-tasks-btn:hover {
+    background-color: #5a6268 !important;
+}
+
+.btn-outline-primary {
     background-color: #bb0028;
     border-color: #bb0028;
-    color: #e2e8f0;
+    color: #ffffff;
+}
+
+.btn-outline-primary:hover {
+    background-color: #990020;
+    border-color: #990020;
+    color: #ffffff;
+}
+
+/* ========================================
+   CONTADORES DE TAREFAS
+   ======================================== */
+.counter-card, .stat-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 250, 0.9) 100%);
+    transition: all var(--transition-normal);
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.counter-card:hover, .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+}
+
+.counter-overdue:hover {
+    border-color: var(--color-danger);
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.1) 0%, rgba(255, 255, 255, 0.9) 100%);
+}
+
+.counter-today:hover {
+    border-color: var(--color-warning);
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 255, 255, 0.9) 100%);
+}
+
+.counter-future:hover {
+    border-color: var(--color-primary);
+    background: linear-gradient(135deg, rgba(26, 91, 138, 0.1) 0%, rgba(255, 255, 255, 0.9) 100%);
+}
+
+#client-task-counters .h3, #global-stats-row .h4 {
+    font-weight: 700;
+}
+
+#client-task-counters .h3 {
+    font-size: 2.5rem;
+}
+
+/* ========================================
+   CARDS DE TAREFAS
+   ======================================== */
+.task-card {
+    position: relative;
+    transition: all var(--transition-fast);
+    border-left: 4px solid transparent;
+}
+
+.task-card:hover {
+    transform: translateX(5px);
+    box-shadow: var(--shadow-sm);
+}
+
+.completed-task {
+    text-decoration: line-through;
+    opacity: 0.65;
+    background-color: #e6f7df !important;
+    border-left: 4px solid var(--color-success) !important;
+}
+
+.overdue-task {
+    background-color: #f8d7da !important;
+    border-left: 4px solid var(--color-danger) !important;
+}
+
+.overdue-task:hover {
+    background-color: #f5c2c7 !important;
+}
+
+.today-task {
+    background-color: #fff3cd !important;
+    border-left: 4px solid var(--color-warning) !important;
+}
+
+/* ========================================
+   MODAIS
+   ======================================== */
+.modal-content {
+    border-radius: 16px;
+    border: none;
+    box-shadow: var(--shadow-lg);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
+    color: white;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-bottom: none;
+    padding: 1.25rem 1.5rem;
+}
+
+.modal-header .modal-title {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: white !important; /* Garante visibilidade do título do modal */
+}
+
+.modal-header .btn-close {
+    filter: invert(1);
+    opacity: 0.8;
+}
+
+.modal-header .btn-close:hover {
+    opacity: 1;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    border-top: 1px solid #dee2e6;
+    padding: 1rem 1.5rem;
+}
+
+/* Modal de Mensagem com Bordas Coloridas */
+#message-modal .modal-content.border-danger {
+    border: 3px solid var(--color-danger);
+}
+
+#message-modal .modal-content.border-success {
+    border: 3px solid var(--color-success);
+}
+
+#message-modal .modal-content.border-warning {
+    border: 3px solid var(--color-warning);
+}
+
+/* ========================================
+   BADGES
+   ======================================== */
+.badge {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+/* ========================================
+   ALERTAS
+   ======================================== */
+.alert {
+    border-radius: 12px;
+    border: none;
+    padding: 1rem 1.25rem;
+    font-weight: 500;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.alert-warning {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* ========================================
+   TEMA ESCURO (Bootstrap)
+   ======================================== */
+[data-bs-theme="dark"] .card {
+    background-color: #1e2936;
+    color: #e9ecef;
+}
+
+[data-bs-theme="dark"] .form-control {
+    background-color: #2b3544;
+    border-color: #3d4a5c;
+    color: #e9ecef;
+}
+
+[data-bs-theme="dark"] .form-control:focus {
+    background-color: #2b3544;
+    border-color: var(--color-primary);
+    color: #e9ecef;
+}
+
+[data-bs-theme="dark"] .form-label {
+    color: #adb5bd;
+}
+
+[data-bs-theme="dark"] .counter-card, [data-bs-theme="dark"] .stat-card {
+    background: linear-gradient(135deg, rgba(30, 41, 54, 0.9) 0%, rgba(43, 53, 68, 0.9) 100%);
+    color: #e9ecef;
+}
+
+[data-bs-theme="dark"] .modal-content {
+    background-color: #1e2936;
+    color: #e9ecef;
+}
+
+[data-bs-theme="dark"] .modal-header {
+    background: linear-gradient(135deg, #1A5B8A 0%, #2271a8 100%);
+}
+
+[data-bs-theme="dark"] .modal-footer {
+    border-top-color: #3d4a5c;
+}
+
+[data-bs-theme="dark"] .completed-task {
+    background-color: #1e3a2e !important;
+    color: #a8d5ba !important;
+}
+
+[data-bs-theme="dark"] .overdue-task {
+    background-color: #3a1e1e !important;
+    color: #f5c2c7 !important;
+}
+
+[data-bs-theme="dark"] .today-task {
+    background-color: #3a3520 !important;
+    color: #fff3cd !important;
+}
+
+/* ========================================
+   RESPONSIVIDADE
+   ======================================== */
+@media (max-width: 991px) {
+    body {
+        padding-left: 20px;
+        padding-top: 100px;
+    }
+    
+    .custom-header {
+        left: 0;
+    }
+    
+    .client-list-sidebar {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .custom-header h1 {
+        font-size: 1.2rem;
+    }
+    
+    .section-title {
+        font-size: 1rem;
+    }
+    
+    .btn {
+        font-size: 0.75rem;
+        padding: 6px 12px;
+    }
+    
+    #client-task-counters .h3 {
+        font-size: 2rem;
+    }
+}
+
+/* ========================================
+   ANIMAÇÕES
+   ======================================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card,
+.task-card,
+.client-list-item {
+    animation: fadeIn 0.3s ease;
+}
+
+/* ========================================
+   UTILIDADES
+   ======================================== */
+.theme-card-bg {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+[data-bs-theme="dark"] .theme-card-bg {
+    background-color: rgba(30, 41, 54, 0.5);
+}
+
+/* Scroll suave */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Seleção de texto */
+::selection {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+/* Focus visível para acessibilidade */
+*:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
 }
