@@ -159,6 +159,7 @@ body {
     border: none;
     border-radius: 16px;
     box-shadow: var(--shadow-md);
+    margin-top: 20px;
     margin-bottom: 2rem;
     transition: all var(--transition-normal);
 }
@@ -625,4 +626,11 @@ html {
 *:focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
+}
+
+.containerBtn{
+    background-color: #0099CC;
+    
+    justify-items: center;
+    align-items: center;
 }

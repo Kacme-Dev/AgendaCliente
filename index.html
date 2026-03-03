@@ -45,10 +45,29 @@
         </div>
     </header>
 
+     
+
     <!-- ========================================
          MAIN CONTENT: Busca, Filtros e Status
          ======================================== -->
     <main class="container main-content my-4">
+
+        <!-- Filtros de Tarefas Globais e Estatísticas -->
+            <div class="d-flex flex-wrap justify-content-center gap-2 mt-4 pt-3 border-top">
+                <button type="button" id="show-report-btn" class="btn btn-info btn-sm text-dark fw-bold">
+                    <i class="bi bi-file-earmark-check"></i> Relatório Diário
+                </button>
+                <button type="button" id="show-today-tasks-btn" class="btn btn-warning btn-sm text-dark">
+                    <i class="bi bi-bell"></i> Tarefas Hoje
+                </button>
+                <button type="button" id="show-overdue-tasks-btn" class="btn btn-danger btn-sm">
+                    <i class="bi bi-exclamation-triangle"></i> Tarefas Atrasadas 
+                    <span id="overdue-count" class="badge bg-light text-danger ms-1">0</span>
+                </button>
+                <button type="button" id="show-future-tasks-btn" class="btn btn-secondary btn-sm">
+                    <i class="bi bi-calendar-event"></i> Tarefas Futuras
+                </button>
+            </div>
         
         <!-- Seção: Buscar / Criar Cliente -->
         <section id="search-container" class="card p-4 shadow-sm mb-4">
@@ -79,21 +98,7 @@
                 </button>
             </div>
             
-            <!-- Filtros de Tarefas Globais e Estatísticas -->
-            <div class="d-flex flex-wrap justify-content-start gap-2 mt-4 pt-3 border-top">
-                <button type="button" id="show-report-btn" class="btn btn-info btn-sm text-dark fw-bold">
-                    <i class="bi bi-file-earmark-check"></i> Relatório Diário
-                </button>
-                <button type="button" id="show-today-tasks-btn" class="btn btn-warning btn-sm text-dark">
-                    <i class="bi bi-bell"></i> Tarefas Hoje
-                </button>
-                <button type="button" id="show-overdue-tasks-btn" class="btn btn-danger btn-sm">
-                    <i class="bi bi-exclamation-triangle"></i> Tarefas Atrasadas 
-                    <span id="overdue-count" class="badge bg-light text-danger ms-1">0</span>
-                </button>
-                <button type="button" id="show-future-tasks-btn" class="btn btn-secondary btn-sm">
-                    <i class="bi bi-calendar-event"></i> Tarefas Futuras
-                </button>
+           
                 <button type="button" id="toggle-stats-btn" class="btn btn-dark btn-sm">
                     <i class="bi bi-graph-up"></i> Estatísticas de Tarefas
                 </button>
