@@ -23,7 +23,7 @@
     --color-bg-dark: #0A1626;
     --color-bg-darker: #060f1a;
     --color-sidebar-bg: #1a222d;
-    --color-card-bg: #f8f9fa;
+    --color-card-bg: #f2f2f2;
     
     /* Textos */
     --color-text-light: #ffffff;
@@ -159,8 +159,8 @@ body {
     border: none;
     border-radius: 16px;
     box-shadow: var(--shadow-md);
-    margin-top: 20px;
     margin-bottom: 2rem;
+    margin-top: 20px;
     transition: all var(--transition-normal);
 }
 
@@ -268,14 +268,15 @@ textarea.form-control {
 }
 
 #show-overdue-tasks-btn {
-    background-color: rgba(220, 53, 69, 0.1) !important;
-    color: var(--color-danger) !important;
+    background-color: var(--color-danger) !important;
+    color: white !important;
     border: 2px solid var(--color-danger);
 }
 
 #show-overdue-tasks-btn:hover {
-    background-color: var(--color-danger) !important;
+    background-color: #c21e18 !important;
     color: white !important;
+    border: 2px solid #c21e18;
 }
 
 #show-today-tasks-btn {
@@ -626,11 +627,4 @@ html {
 *:focus-visible {
     outline: 2px solid var(--color-primary);
     outline-offset: 2px;
-}
-
-.containerBtn{
-    background-color: #0099CC;
-    
-    justify-items: center;
-    align-items: center;
 }
