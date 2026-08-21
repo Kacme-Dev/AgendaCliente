@@ -164,10 +164,45 @@ function showClientListSidebar() {
         return;
     }
     const sorted = [...clients].sort((a, b) => a.codigo.localeCompare(b.codigo, undefined, { numeric: true }));
+    const todayStr = getTodayDateString();
+
     sorted.forEach(client => {
+        let hasOverdue = false;
+        let hasToday = false;
+        let hasPending = false;
+        
+        if (client.tarefas) {
+            client.tarefas.forEach(t => {
+                if (!t.concluida) {
+                    hasPending = true;
+                    if (isTaskOverdue(t)) {
+                        hasOverdue = true;
+                    } else if (t.due_date === todayStr) {
+                        hasToday = true;
+                    }
+                }
+            });
+        }
+        
+        let taskStatusHtml = '';
+        if (hasPending) {
+            let globeClass = 'globe-future';
+            let tooltip = 'Possui tarefas futuras';
+            
+            if (hasOverdue) {
+                globeClass = 'globe-danger';
+                tooltip = 'Possui tarefas atrasadas';
+            } else if (hasToday) {
+                globeClass = 'globe-active';
+                tooltip = 'Possui tarefas para hoje';
+            }
+            
+            taskStatusHtml = `<div class="status-globe ${globeClass}" title="${tooltip}"></div>`;
+        }
+
         const div = document.createElement('div');
         div.className = 'client-list-item';
-        div.innerHTML = `<div onclick="loadClientDataByCode('${client.codigo}')"><strong>${client.codigo}</strong> - ${client['nome-cliente']}</div>`;
+        div.innerHTML = `<div onclick="loadClientDataByCode('${client.codigo}')" style="flex-grow:1;"><strong>${client.codigo}</strong> - ${client['nome-cliente']}</div>${taskStatusHtml}`;
         listOutput.appendChild(div);
     });
 }
